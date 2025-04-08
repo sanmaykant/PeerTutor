@@ -1,0 +1,30 @@
+#container {
+    width: 100vw;
+    height: 100vh;
+    background-color: beige;
+    color: black;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 4em;
+    background-color: pink;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 clamp(2em, 5vw, 10em);
+}
+
+#quick-links > ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+
+ul > li {
+    margin-left: clamp(0em, 5em, 6em);
+}

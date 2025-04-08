@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook"
 import { AuthContext } from "../providers/AuthProvider"
+import "./Signup.scss";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function Login() {
 
     return (
         <div id="main">
-            <div id="container">
+            <div id="container1">
                 <div id="heading">
                 <h1>Login</h1>
                 <p>Start learning and teaching with PeerTutor</p>
