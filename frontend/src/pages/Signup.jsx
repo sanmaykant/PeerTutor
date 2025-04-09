@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook"
 import { AuthContext } from "../providers/AuthProvider"
-import "./Signup.scss";
+import styles from "./Signup.module.scss";
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -50,9 +50,9 @@ export default function Signup() {
     };
 
     return (
-        <div id="main">
-            <div id="container">
-                <div id="heading">
+        <div id={styles.main}>
+            <div id={styles.container}>
+                <div id={styles.heading}>
                 <h1>Sign Up</h1>
                 <p>Start learning and teaching with PeerTutor</p>
                 </div>
@@ -81,8 +81,8 @@ export default function Signup() {
                         onChange={handlePasswordUpdate}
                         required
                     />
-                    <p className={passwordState.characterLength}>Password must contain at least 8 characters</p>
-                    <p className={passwordState.specialCharacters}>Password must contain at least 1 special character</p>
+                    <p style={passwordState.characterLength}>Password must contain at least 8 characters</p>
+                    <p style={passwordState.specialCharacters}>Password must contain at least 1 special character</p>
                     <button type="submit">Signup</button>
                 </form>
             </div>

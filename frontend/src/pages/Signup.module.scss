@@ -9,7 +9,7 @@
     display: flex;
 }
 
-#container1 {
+#container {
     display: flex;
     flex-direction: column;
 
@@ -82,19 +82,5 @@
         button:focus-visible {
             outline: 4px auto -webkit-focus-ring-color;
         }
-    }
-
-    .error {
-        display: block;
-        color: rgb(255, 52, 52);
-    }
-
-    .success {
-        display: block;
-        color: #44be88;
-    }
-
-    .hide {
-        display: none;
     }
 }

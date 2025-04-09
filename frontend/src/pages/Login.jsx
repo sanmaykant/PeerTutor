@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook"
 import { AuthContext } from "../providers/AuthProvider"
-import "./Signup.scss";
+import styles from "./Signup.module.scss";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -45,32 +45,32 @@ export default function Login() {
     };
 
     return (
-        <div id="main">
-            <div id="container1">
-                <div id="heading">
+        <div idid={styles.main}>
+            <div idid={styles.container}>
+                <div idid={styles.heading}>
                 <h1>Login</h1>
                 <p>Start learning and teaching with PeerTutor</p>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
+                        typeid={styles.email}
+                        nameid={styles.email}
+                        placeholderid={styles.Email}
                         value={formData.email}
                         onChange={handleFormUpdate}
                         required
                     />
                     <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
+                        typeid={styles.password}
+                        nameid={styles.password}
+                        placeholderid={styles.Password}
                         value={formData.password}
                         onChange={handlePasswordUpdate}
                         required
                     />
                     <p className={passwordState.characterLength}>Password must contain at least 8 characters</p>
                     <p className={passwordState.specialCharacters}>Password must contain at least 1 special character</p>
-                    <button type="submit">Login</button>
+                    <button typeid={styles.submit}>Login</button>
                 </form>
             </div>
         </div>

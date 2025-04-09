@@ -1,14 +1,28 @@
 import { useState, useDebugValue } from "react";
 
 export function useAuthformHook(userFields) {
+    const errorStyle = {
+        display: "block",
+        color: "rgb(255, 52, 52)",
+    };
+
+    const successStyle = {
+        display: "block",
+        color: "#44be88",
+    };
+
+    const hideStyle = {
+        display: "none",
+    };
+
     function useAuthForm() {
         const [formData, setFormData] = useState({
             ...userFields,
             password: ""
         });
         const [passwordState, setValidPasswordState] = useState({
-            characterLength: "hide",
-            specialCharacters: "hide",
+            characterLength: hideStyle,
+            specialCharacters: hideStyle,
         });
 
         useDebugValue(formData);
@@ -27,9 +41,9 @@ export function useAuthformHook(userFields) {
 
             setValidPasswordState({
                 ...passwordState,
-                characterLength: value.length < 8 ? "error" : "success",
-                specialCharacters: !/[\@\#\$\%\^\&\*\!\(\)]/.test(value) ?
-                "error" : "success",
+                characterLength: value.length < 8 ? errorStyle : successStyle,
+                specialCharacters: !/[\@\#\$\%\^\&\*\!\(\)]/.test(value)
+                                        ? errorStyle : successStyle,
             });
 
             setFormData(prevState => ({
