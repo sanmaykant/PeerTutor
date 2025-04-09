@@ -1,0 +1,60 @@
+/* Signup.css */
+
+.signup-form {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 12px;
+    background-color: #fdfdfd;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .signup-form h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+  
+  .signup-form input,
+  .signup-form select {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+  }
+  
+  .signup-form input:focus,
+  .signup-form select:focus {
+    outline: none;
+    border-color: #0077ff;
+  }
+  
+  .signup-form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  
+  .signup-form button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #0077ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .signup-form button:hover {
+    background-color: #005fd1;
+  }
+  
