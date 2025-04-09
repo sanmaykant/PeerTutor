@@ -1,20 +1,7 @@
 import { useState, useDebugValue } from "react";
+import { errorStyle, successStyle, hideStyle } from "../utils/styles";
 
 export function useAuthformHook(userFields) {
-    const errorStyle = {
-        display: "block",
-        color: "rgb(255, 52, 52)",
-    };
-
-    const successStyle = {
-        display: "block",
-        color: "#44be88",
-    };
-
-    const hideStyle = {
-        display: "none",
-    };
-
     function useAuthForm() {
         const [formData, setFormData] = useState({
             ...userFields,

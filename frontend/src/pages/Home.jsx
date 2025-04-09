@@ -4,14 +4,14 @@ import { useNavigate } from "react-router"
 import styles from "./Home.module.scss";
 
 export default function Home() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const { authStatus } = useContext(AuthContext);
 
-    useEffect(() => {
-        if (authStatus === "authenticated") {
-            navigate("/dashboard");
-        }
-    }, [authStatus]);
+    // useEffect(() => {
+    //     if (authStatus === "authenticated") {
+    //         navigate("/dashboard");
+    //     }
+    // }, [authStatus]);
 
     return (
         <>
@@ -23,6 +23,8 @@ export default function Home() {
                             <li><a href="">Home</a></li>
                             <li><a href="/features">Features</a></li>
                             <li><a href="/contact">Contact</a></li>
+                            <li><a href="/signup">Signup</a></li>
+                            <li><a href="/login">Login</a></li>
                         </ul>
                         <div id={styles.logo}></div>
                     </div>

@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/meet",
-        "element": <ProtectedRoute><Meet /></ProtectedRoute>,
+        "element": <Meet />,
     }
 ])
 
