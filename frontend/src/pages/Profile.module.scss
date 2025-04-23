@@ -1,0 +1,93 @@
+// Profile.module.scss
+$bg-color: #fff;
+$text-color: #333;
+$border-color: #ddd;
+$input-bg: #fff;
+$button-bg: #555;
+$button-hover-bg: #444;
+
+.mainContainer {
+  background-color: #fff;
+  overflow-x: hidden;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profileContainer {
+  max-width: 800px;
+  width: 100%;
+  margin: 4rem auto;
+  padding: 2rem;
+  background-color: $bg-color;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profileTitle {
+  font-size: 2rem;
+  color: $text-color;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 1rem;
+  color: $text-color;
+}
+
+.input,
+.select {
+  padding: 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: 0.5rem;
+  background-color: $input-bg;
+  font-size: 1rem;
+  color: $text-color;
+  transition: border 0.3s ease;
+
+  &:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    border-color: $button-bg;
+    outline: none;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.editButton,
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  background-color: $button-bg;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: $button-hover-bg;
+  }
+}

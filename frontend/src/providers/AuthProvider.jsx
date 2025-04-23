@@ -11,6 +11,7 @@ export const AuthContext = createContext("loading");
 
 export default function AuthProvider({ children }) {
     const [authStatus, setAuthStatus] = useState("loading");
+    const [user, setUser] = useState();
     const [metrics, setMetrics] = useState({
         strengths: [],
         weaknesses: [],
@@ -36,6 +37,7 @@ export default function AuthProvider({ children }) {
             });
 
             const jsonResponse = await response.json();
+            setUser(jsonResponse.user);
             if (!jsonResponse.success) {
                 setAuthStatus("unauthenticated");
             } else {
@@ -52,7 +54,7 @@ export default function AuthProvider({ children }) {
     }, [authStatus]);
 
     return (
-        <AuthContext.Provider value={{ authStatus, setAuthStatus, metrics }}>
+        <AuthContext.Provider value={{ authStatus, setAuthStatus, user, metrics }}>
             {children}
         </AuthContext.Provider>
     );

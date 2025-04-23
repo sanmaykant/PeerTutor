@@ -1,8 +1,9 @@
 import { Router } from "express";
 import {
+    updateUser,
     updateMetrics,
     fetchMetrics,
-    fetchMatches
+    fetchMatches,
 } from "../controllers/user/userController.js"
 
 const router = Router();
@@ -15,6 +16,9 @@ router.get("/metrics", (req, res, next) => {
 })
 router.get("/matches", (req, res, next) => {
     fetchMatches(req, res).catch(next);
+})
+router.post("/update", (req, res, next) => {
+    updateUser(req, res).catch(next);
 })
 
 export default router;

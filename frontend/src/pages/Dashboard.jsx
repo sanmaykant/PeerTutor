@@ -16,6 +16,7 @@ function Dashboard() {
     const [weaknesses, setWeaknesses] = useState([]);
     const [matches, setMatches] = useState([]);
     const formInput = metrics.strengths.length === 0 && metrics.weaknesses.length === 0;
+    console.log(matches);
 
     useEffect(() => {
         if (formInput) { return; }

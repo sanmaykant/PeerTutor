@@ -78,9 +78,16 @@ const notAuthorized = (res) => {
     });
 }
 
-const authorized = (res) => {
+const authorized = (res, user) => {
     return res.send({
         message: MSG.authorized,
+        user: {
+            username: user.username,
+            email: user.email,
+            university: user.university,
+            strengths: user.strengths,
+            weaknesses: user.weaknesses,
+        },
         success: true,
     });
 }
@@ -177,7 +184,11 @@ export const authenticate = async (req, res, next) => {
             token = req.cookies.auth_token;
         }
     } else {
-        token = req.body.auth_token;
+        if (req.headers.auth_token) {
+            token = req.headers.auth_token;
+        } else {
+            token = req.body.auth_token;
+        }
     }
 
     if (!token) {
@@ -195,7 +206,7 @@ export const authenticate = async (req, res, next) => {
             if (!user) {
                 return userNotFound(res);
             }
-            return authorized(res);
+            return authorized(res, user);
         }
     } catch (e) {}
 

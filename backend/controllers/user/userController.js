@@ -1,4 +1,43 @@
 import User from "../../models/user.js";
+import Joi from "joi";
+
+export const userSchema = Joi.object({
+    username: Joi.string().required(),
+    email: Joi.string().min(8).required(),
+    age: Joi.string().allow(null, ""),
+    gender: Joi.string().allow(null, ""),
+    university: Joi.string().allow(null, ""),
+    strengths: Joi.array().items(Joi.string()),
+    weaknesses: Joi.array().items(Joi.string()),
+})
+
+export const updateUser = async (req, res) => {
+    try {
+        const updateRequest = await userSchema.validateAsync(req.body);
+        const user = req.user;
+
+        const result = await User.findOneAndUpdate(
+            { email: user.email },
+            {
+                username: updateRequest.username,
+                email: updateRequest.email,
+                university: updateRequest.university,
+                strengths: updateRequest.strengths,
+                weaknesses: updateRequest.weaknesses,
+            },
+            { new: true }
+        );
+
+
+        console.log(user);
+        await user.save();
+
+        return res.status(200).json({ message: "User metrics updated successfully.", user });
+    } catch (error) {
+        console.error("Update metrics error:", error);
+        return res.status(500).json({ message: "Server error while updating metrics." });
+    }
+}
 
 export const updateMetrics = async (req, res) => {
     try {
@@ -87,6 +126,7 @@ export const fetchMatches = async(req, res) => {
                 matches.push({
                     username: match.username,
                     email: match.email,
+                    university: match.university,
                     strengths: matchedStrengths,
                     weaknesses: matchedWeaknesses
                 });
