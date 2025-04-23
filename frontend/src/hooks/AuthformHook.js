@@ -1,4 +1,5 @@
 import { useState, useDebugValue } from "react";
+import { errorStyle, successStyle, hideStyle } from "../utils/styles";
 
 export function useAuthformHook(userFields) {
     function useAuthForm() {
@@ -7,8 +8,8 @@ export function useAuthformHook(userFields) {
             password: ""
         });
         const [passwordState, setValidPasswordState] = useState({
-            characterLength: "hide",
-            specialCharacters: "hide",
+            characterLength: hideStyle,
+            specialCharacters: hideStyle,
         });
 
         useDebugValue(formData);
@@ -27,9 +28,9 @@ export function useAuthformHook(userFields) {
 
             setValidPasswordState({
                 ...passwordState,
-                characterLength: value.length < 8 ? "error" : "success",
-                specialCharacters: !/[\@\#\$\%\^\&\*\!\(\)]/.test(value) ?
-                "error" : "success",
+                characterLength: value.length < 8 ? errorStyle : successStyle,
+                specialCharacters: !/[\@\#\$\%\^\&\*\!\(\)]/.test(value)
+                                        ? errorStyle : successStyle,
             });
 
             setFormData(prevState => ({

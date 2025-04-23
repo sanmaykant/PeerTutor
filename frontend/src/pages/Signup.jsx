@@ -2,11 +2,14 @@ import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook"
 import { AuthContext } from "../providers/AuthProvider"
-import "./Signup.scss";
+import { errorStyle, hideStyle } from "../utils/styles";
+import styles from "./Signup.module.scss";
 
 export default function Signup() {
     const navigate = useNavigate();
     const { setAuthStatus } = useContext(AuthContext);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [errorMsgStyle, setErrorMsgStyle] = useState(hideStyle);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const useFormData = useAuthformHook({
@@ -42,17 +45,21 @@ export default function Signup() {
         });
 
         const data = await response.json();
+        console.log(data);
         if (data.success) {
             localStorage.setItem("auth_token", data.auth_token);
             localStorage.setItem("email", formData.email);
             setIsSubmitted(true);
+        } else {
+            setErrorMsg(data.message);
+            setErrorMsgStyle(errorStyle);
         }
     };
 
     return (
-        <div id="main">
-            <div id="container">
-                <div id="heading">
+        <div id={styles.main}>
+            <div id={styles.container}>
+                <div id={styles.heading}>
                 <h1>Sign Up</h1>
                 <p>Start learning and teaching with PeerTutor</p>
                 </div>
@@ -81,8 +88,9 @@ export default function Signup() {
                         onChange={handlePasswordUpdate}
                         required
                     />
-                    <p className={passwordState.characterLength}>Password must contain at least 8 characters</p>
-                    <p className={passwordState.specialCharacters}>Password must contain at least 1 special character</p>
+                    <p style={passwordState.characterLength}>Password must contain at least 8 characters</p>
+                    <p style={passwordState.specialCharacters}>Password must contain at least 1 special character</p>
+                    <p style={errorMsgStyle}>{errorMsg}</p>
                     <button type="submit">Signup</button>
                 </form>
             </div>

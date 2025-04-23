@@ -1,41 +1,45 @@
 import { AuthContext } from "../providers/AuthProvider";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router"
-import "./Home.css";
+import styles from "./Home.module.scss";
 
 export default function Home() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const { authStatus } = useContext(AuthContext);
 
-    useEffect(() => {
-        if (authStatus === "authenticated") {
-            navigate("/dashboard");
-        }
-    }, [authStatus]);
+    // useEffect(() => {
+    //     if (authStatus === "authenticated") {
+    //         navigate("/dashboard");
+    //     }
+    // }, [authStatus]);
 
     return (
         <>
-            <div id="container">
+            <div id={styles.container}>
                 <nav>
-                    <span id="logo">PeerTutor</span>
-                    <div id="quick-links">
+                    <span id={styles.logo}>PeerTutor</span>
+                    <div id={styles.quickLinks}>
                         <ul>
-                            <li>Home</li>
-                            <li>Features</li>
-                            <li>Contact</li>
+                            <li><a href="">Home</a></li>
+                            <li><a href="/features">Features</a></li>
+                            <li><a href="/contact">Contact</a></li>
+                            <li><a href="/signup">Signup</a></li>
+                            <li><a href="/login">Login</a></li>
                         </ul>
-                        <div id="logo"></div>
+                        <div id={styles.logo}></div>
                     </div>
                 </nav>
-                <div id="content">
-                    <div id="quote">
+                <div id={styles.content}>
+                    <div id={styles.quote}>
                         <span>Connect</span>
                         <span>Learn</span>
                         <span>Grow</span>
                     </div>
-                    <div id="cta">
+                    <div id={styles.cta}>
+                        <div>
                         <button>Get Started</button>
                         <button>Become a Member</button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+#main {
+    background-color: #ffffff;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+
+    #heading {
+        margin-bottom: 2em;
+        h1 {
+            color: #1b1b1b;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 600;
+            font-style: normal;
+            letter-spacing: -1.5px;
+            margin: 8px 0;
+            font-size: 3em;
+            font-optical-sizing: auto;
+        }
+
+        p {
+            color: #a1a1a1;
+            font-weight: 500;
+            font-size: 0.75em;
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        width: 24em;
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: '10px 0';
+            background-color: rgba($color: #000000, $alpha: 0);
+            border: none;
+            border-bottom: 1px solid #ebebeb;
+            font-family: "Poppins", sans-serif;
+            color: black;
+            margin-bottom: 2em;
+            &:focus {
+                border-bottom: 1px solid #252525;
+                transition: 125ms ease-in-out;
+            }
+        }
+
+        p {
+            color: #a1a1a1;
+            font-weight: 500;
+            font-size: 0.75em;
+            margin-bottom: 0.5em;
+        }
+
+        button {
+            margin-top: 2em;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            padding: 0.6em 1.2em;
+            font-size: 1em;
+            font-weight: 500;
+            font-family: inherit;
+            background-color: #1a1a1a;
+            cursor: pointer;
+            transition: border-color 0.25s;
+        }
+        button:hover {
+            border-color: #646cff;
+        }
+        button:focus,
+        button:focus-visible {
+            outline: 4px auto -webkit-focus-ring-color;
+        }
+    }
+}
