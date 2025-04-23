@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router";
 import { AuthContext } from "../providers/AuthProvider.jsx";
 import { updateMetrics, fetchMatches } from "../utils/apiControllers.js";
 import ListView from "./ListView";
 import styles from "./Dashboard.module.scss";
-import { User } from "lucide-react";
 
 const subjects = ["Maths", "Science", "History", "Geography", "English"];
 
 function Dashboard() {
-    const navigate = useNavigate();
-
     const { metrics } = useContext(AuthContext);
     const [strengths, setStrengths] = useState([]);
     const [weaknesses, setWeaknesses] = useState([]);
@@ -53,18 +49,10 @@ function Dashboard() {
                     {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
 
-                <button type="submit">Register</button>
+                <button type="submit" >Register</button>
             </form>
         ) : (
-            <>
-            <h1 className={styles.heading}>Matches</h1>
-            <ListView users={matches} />
-            <a href="/profile" className={styles.user}>
-              <User
-                className={styles.icon}
-              />
-            </a>
-            </>
+              <ListView users={matches} />
         )}
         </div>
         </>

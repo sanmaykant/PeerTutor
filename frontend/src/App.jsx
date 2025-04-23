@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home"
 import Meet from "./pages/Meet";
+import Profile from "./pages/Profile";
 
 const router = createBrowserRouter([
     {
@@ -27,7 +28,11 @@ const router = createBrowserRouter([
     {
         path: "/meet",
         "element": <ProtectedRoute><Meet /></ProtectedRoute>,
-    }
+    },
+    {
+        path: "/profile",
+        element: <ProtectedRoute><Profile /></ProtectedRoute>,
+    },
 ])
 
 function App() {
