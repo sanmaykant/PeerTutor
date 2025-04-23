@@ -22,7 +22,7 @@ const MSG = {
     authorized: "",
 };
 
-const userNotFound = () => {
+const userNotFound = (res) => {
     return res.status(400).json({
         message: MSG.emailNotExist,
         reason: "email",
@@ -30,7 +30,7 @@ const userNotFound = () => {
     });
 }
 
-const emailExists = () => {
+const emailExists = (res) => {
     return res.status(400).json({
         message: MSG.emailExists,
         reason: "email",
@@ -38,7 +38,7 @@ const emailExists = () => {
     });
 }
 
-const signupSuccess = (token) => {
+const signupSuccess = (res, token) => {
     return res.status(201).json({
         message: MSG.signupSuccess,
         success: true,
@@ -46,7 +46,7 @@ const signupSuccess = (token) => {
     });
 }
 
-const serverError = () => {
+const serverError = (res) => {
     return res.status(500).json({
         message: MSG.serverError,
         reason: "server",
@@ -54,7 +54,7 @@ const serverError = () => {
     });
 }
 
-const incorrectPassword = () => {
+const incorrectPassword = (res) => {
     return res.status(400).json({
         message: MSG.wrongPassword,
         reason: "password",
@@ -62,7 +62,7 @@ const incorrectPassword = () => {
     });
 }
 
-const loginSuccess = (token) => {
+const loginSuccess = (res, token) => {
     return res.status(200).json({
         message: MSG.loginSuccess,
         success: true,
@@ -70,7 +70,7 @@ const loginSuccess = (token) => {
     });
 }
 
-const notAuthorized = () => {
+const notAuthorized = (res) => {
     return res.status(401).json({
         message: "Not authorized",
         reason: "authentication",
@@ -78,15 +78,22 @@ const notAuthorized = () => {
     });
 }
 
-const authorized = () => {
+const authorized = (res, user) => {
     return res.send({
         message: MSG.authorized,
+        user: {
+            username: user.username,
+            email: user.email,
+            university: user.university,
+            strengths: user.strengths,
+            weaknesses: user.weaknesses,
+        },
         success: true,
     });
 }
 
-const invalidSchema = (errorMsg) => {
-    res.status(403).json({
+const invalidSchema = (res, errorMsg) => {
+    return res.status(403).json({
         message: errorMsg,
         reason: "schema",
         success: false,
@@ -100,7 +107,7 @@ export const signup = async (req, res) => {
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return emailExists();
+            return emailExists(res);
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -115,16 +122,16 @@ export const signup = async (req, res) => {
         try {
             await newUser.save();
             const token = generateToken(newUser);
-            return signupSuccess(token);
+            return signupSuccess(res, token);
         } catch (error) {
             console.error("Signup error:", error);
-            return serverError();
+            return serverError(res);
         }
     } catch (e) {
         let reason = "";
         if (e.isJoi) {
             reason = "schema";
-            invalidSchema(e.message);
+            return invalidSchema(res, e.message);
         }
     }
 };
@@ -137,24 +144,28 @@ export const login = async (req, res) => {
         try {
             const user = await User.findOne({ email });
             if (!user) {
-                return userNotFound();
+                return userNotFound(res);
             }
 
             if (!(await bcrypt.compare(password, user.password))) {
-                return incorrectPassword();
+                return incorrectPassword(res);
             }
 
             const token = generateToken(user);
-            return loginSuccess(token);
+            res.cookie('email', 'email', {
+                auth_token: token
+            });
+
+            return loginSuccess(res, token);
         } catch (error) {
             console.error(error);
-            return serverError();
+            return serverError(res);
         }
     } catch (e) {
         let reason = "";
         if (e.isJoi) {
             reason = "schema";
-            return invalidSchema(e.message);
+            return invalidSchema(res, e.message);
         }
     }
 };
@@ -165,27 +176,40 @@ export const logout = (req, res) => {
 };
 
 export const authenticate = async (req, res, next) => {
-    const token = req.body.auth_token;
+    let token;
+    if (!req.body) {
+        if (req.headers.auth_token) {
+            token = req.headers.auth_token;
+        } else {
+            token = req.cookies.auth_token;
+        }
+    } else {
+        if (req.headers.auth_token) {
+            token = req.headers.auth_token;
+        } else {
+            token = req.body.auth_token;
+        }
+    }
 
     if (!token) {
-        return notAuthorized();
+        return notAuthorized(res);
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-        return notAuthorized();
+        return notAuthorized(res);
     }
+    const user = await User.findById(decoded.id);
 
-    if (req.body.authenticating) {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return userNotFound();
+    try {
+        if (req.body.authenticating) {
+            if (!user) {
+                return userNotFound(res);
+            }
+            return authorized(res, user);
         }
+    } catch (e) {}
 
-        return authorized();
-    }
-
+    req.user = user;
     next();
 };

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router"
 import styles from "./Home.module.scss";
 
 export default function Home() {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const { authStatus } = useContext(AuthContext);
 
     // useEffect(() => {
@@ -23,8 +23,6 @@ export default function Home() {
                             <li><a href="">Home</a></li>
                             <li><a href="/features">Features</a></li>
                             <li><a href="/contact">Contact</a></li>
-                            <li><a href="/signup">Signup</a></li>
-                            <li><a href="/login">Login</a></li>
                         </ul>
                         <div id={styles.logo}></div>
                     </div>
@@ -37,8 +35,8 @@ export default function Home() {
                     </div>
                     <div id={styles.cta}>
                         <div>
-                        <button>Get Started</button>
-                        <button>Become a Member</button>
+                        <button onClick={() => { navigate("/login"); }}>Get Started</button>
+                        <button onClick={() => { navigate("/signup"); }}>Become a Member</button>
                         </div>
                     </div>
                 </div>

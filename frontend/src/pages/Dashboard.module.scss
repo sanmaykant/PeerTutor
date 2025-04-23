@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+$form-background: #f9f9f9;
+$input-bg: #fff;
+$input-border: #ddd;
+$text-color: #333;
+$button-bg: #555;
+$button-hover-bg: #444;
+
+.form {
+  width: 100vw;
+  max-width: 600px;
+  margin: 5rem auto;
+  padding: 2rem;
+  background-color: $form-background;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+.formTitle {
+  font-size: 2rem;
+  color: $text-color;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.label {
+  font-size: 1rem;
+  color: $text-color;
+  margin-bottom: 0.5rem;
+}
+
+.select {
+  padding: 0.8rem;
+  background-color: $input-bg;
+  border: 1px solid $input-border;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: $text-color;
+  margin-bottom: 1.5rem;
+  transition: border 0.3s ease;
+  cursor: pointer;
+
+  &:focus {
+    border-color: $button-bg;
+  }
+}
+
+.mainContainer {
+  background-color: #fff;
+  overflow-x: hidden;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.heading {
+  margin: 1.5em 0;
+  color: #1b1b1b;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: -1.5px;
+  font-size: 3em;
+  font-optical-sizing: auto;
+
+  p {
+    color: #a1a1a1;
+    font-weight: 500;
+    font-size: 0.75em;
+  }
+}
+
+
+.user {
+  position: fixed;
+  right: 2em;
+  bottom: 2em;
+  width: 4em;
+  height: 4em;
+  background-color: #ffffff; /* Light background for a clean look */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Light shadow for depth */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+}
+
+.icon {
+  width: 2em; /* Slightly larger icon for better visibility */
+  height: 2em;
+  transition: transform 0.3s ease; /* Smooth icon scale effect */
+  color: #444444;
+}
+
+.user:hover {
+  background-color: #f1f1f1; /* Light gray background on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slightly more pronounced shadow */
+}
+
+.user:hover .icon {
+  transform: scale(1.1); /* Slight scale effect on hover */
+}
+

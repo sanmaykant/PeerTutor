@@ -1,4 +1,4 @@
-import  AuthProvider, { ProtectedRoute } from "./providers/AuthProvider"
+import  AuthProvider, { ProtectedRoute } from "./providers/AuthProvider";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import Dashboard from "./pages/Dashboard"
@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home"
 import Meet from "./pages/Meet";
+import Profile from "./pages/Profile";
 
 const router = createBrowserRouter([
     {
@@ -26,8 +27,12 @@ const router = createBrowserRouter([
     },
     {
         path: "/meet",
-        "element": <Meet />,
-    }
+        "element": <ProtectedRoute><Meet /></ProtectedRoute>,
+    },
+    {
+        path: "/profile",
+        element: <ProtectedRoute><Profile /></ProtectedRoute>,
+    },
 ])
 
 function App() {

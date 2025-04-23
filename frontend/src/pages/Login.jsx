@@ -18,9 +18,9 @@ export default function Signup() {
     });
 
     useEffect(() => {
-        setAuthStatus("authenticated");
+        setAuthStatus("logged_in");
         if (isSubmitted) {
-            navigate("/meet");
+            navigate("/dashboard");
         }
     }, [isSubmitted, navigate]);
 
@@ -88,6 +88,7 @@ export default function Signup() {
                     <p style={passwordState.specialCharacters}>Password must contain at least 1 special character</p>
                     <p style={errorMsgStyle}>{errorMsg}</p>
                     <button type="submit">Login</button>
+                    <p>Not a member? <a href="/signup">Signup</a></p>
                 </form>
             </div>
         </div>
