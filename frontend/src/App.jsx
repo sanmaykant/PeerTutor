@@ -1,4 +1,4 @@
-import  AuthProvider, { ProtectedRoute } from "./providers/AuthProvider"
+import  AuthProvider, { ProtectedRoute } from "./providers/AuthProvider";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import Dashboard from "./pages/Dashboard"
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/meet",
-        "element": <Meet />,
+        "element": <ProtectedRoute><Meet /></ProtectedRoute>,
     }
 ])
 
