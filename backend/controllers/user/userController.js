@@ -85,7 +85,6 @@ export const fetchMatches = async(req, res) => {
                 });
 
                 matches.push({
-                    id: match._id,
                     username: match.username,
                     email: match.email,
                     strengths: matchedStrengths,
