@@ -145,6 +145,10 @@ export const login = async (req, res) => {
             }
 
             const token = generateToken(user);
+            res.cookie('email', 'email', {
+                auth_token: token
+            });
+
             return loginSuccess(res, token);
         } catch (error) {
             console.error(error);
@@ -165,7 +169,16 @@ export const logout = (req, res) => {
 };
 
 export const authenticate = async (req, res, next) => {
-    const token = req.body.auth_token;
+    let token;
+    if (!req.body) {
+        if (req.headers.auth_token) {
+            token = req.headers.auth_token;
+        } else {
+            token = req.cookies.auth_token;
+        }
+    } else {
+        token = req.body.auth_token;
+    }
 
     if (!token) {
         return notAuthorized(res);
@@ -175,17 +188,17 @@ export const authenticate = async (req, res, next) => {
     if (!decoded) {
         return notAuthorized(res);
     }
+    const user = await User.findById(decoded.id);
 
-    if (req.body.authenticating) {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return userNotFound(res);
+    try {
+        if (req.body.authenticating) {
+            if (!user) {
+                return userNotFound(res);
+            }
+            return authorized(res);
         }
+    } catch (e) {}
 
-        return authorized(res);
-    }
-
+    req.user = user;
     next();
 };

@@ -5,11 +5,16 @@ import React, {
     useEffect,
     useContext
 } from "react";
+import { fetchMetrics } from "../utils/apiControllers.js"
 
 export const AuthContext = createContext("loading");
 
 export default function AuthProvider({ children }) {
     const [authStatus, setAuthStatus] = useState("loading");
+    const [metrics, setMetrics] = useState({
+        strengths: [],
+        weaknesses: [],
+    });
 
     useEffect(() => {
         const authenticate = async () => {
@@ -34,15 +39,20 @@ export default function AuthProvider({ children }) {
             if (!jsonResponse.success) {
                 setAuthStatus("unauthenticated");
             } else {
+                const metrics = await fetchMetrics();
+                setMetrics({
+                    strengths: metrics.strengths,
+                    weaknesses: metrics.weaknesses,
+                });
                 setAuthStatus("authenticated");
             }
         };
 
         authenticate();
-    }, []);
+    }, [authStatus]);
 
     return (
-        <AuthContext.Provider value={{ authStatus, setAuthStatus }}>
+        <AuthContext.Provider value={{ authStatus, setAuthStatus, metrics }}>
             {children}
         </AuthContext.Provider>
     );
@@ -58,7 +68,7 @@ export function ProtectedRoute({ children }) {
         }
     }, [authStatus, navigate]);
 
-    if (authStatus === "loading") {
+    if (authStatus !== "authenticated") {
         return <div>Loading...</div>;
     }
 

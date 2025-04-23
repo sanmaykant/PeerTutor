@@ -1,0 +1,16 @@
+.form {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  label {
+    margin-bottom: 1em;
+  }
+
+  select {
+    margin-bottom: 2em;
+  }
+}
