@@ -30,6 +30,7 @@ function Dashboard() {
     const submit = async (e) => {
         e.preventDefault();
         updateMetrics(strengths, weaknesses);
+        window.location.reload();
     };
 
     const handleMultiSelect = (e, setter) => {
