@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./ListView.module.scss";
+import styles from "./styles/ListView.module.scss";
 import { ChevronRight } from "lucide-react";
 
 const ListView = ({ users }) => {

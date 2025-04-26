@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../providers/AuthProvider.jsx";
 import { updateMetrics, fetchMatches } from "../utils/apiControllers.js";
-import ListView from "./ListView";
-import styles from "./Dashboard.module.scss";
+import ListView from "../components/ListView";
+import styles from "./styles/Dashboard.module.scss";
 import { User } from "lucide-react";
 
 const subjects = ["Maths", "Science", "History", "Geography", "English"];

@@ -1,7 +1,7 @@
 import { AuthContext } from "../providers/AuthProvider";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router"
-import styles from "./Home.module.scss";
+import styles from "./styles/Home.module.scss";
 
 export default function Home() {
     const navigate = useNavigate();

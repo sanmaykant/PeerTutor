@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import styles from "./Profile.module.scss";
+import styles from "./styles/Profile.module.scss";
 import { AuthContext } from "../providers/AuthProvider";
 
 function Profile() {

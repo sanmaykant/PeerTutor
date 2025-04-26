@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook"
 import { AuthContext } from "../providers/AuthProvider"
 import { errorStyle, hideStyle } from "../utils/styles";
-import styles from "./Signup.module.scss";
+import styles from "./styles/Auth.module.scss";
 
 export default function Signup() {
     const navigate = useNavigate();
