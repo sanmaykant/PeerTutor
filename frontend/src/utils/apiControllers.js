@@ -47,3 +47,31 @@ export const fetchMatches = async () => {
         }
     } catch (error) {}
 }
+
+export const login = async (email, password) => {
+    try {
+        const response = await fetch("http://localhost:5000/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+            }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+        if (data.success) {
+            localStorage.setItem("auth_token", data.auth_token);
+            localStorage.setItem("email", email);
+
+            return "";
+        } else {
+            return data.message;
+        }
+
+    } catch (e) {
+        console.log(e);
+    }
+
+}

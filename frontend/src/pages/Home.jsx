@@ -1,17 +1,10 @@
 import { AuthContext } from "../providers/AuthProvider";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router"
 import styles from "./styles/Home.module.scss";
 
 export default function Home() {
     const navigate = useNavigate();
-    const { authStatus } = useContext(AuthContext);
-
-    // useEffect(() => {
-    //     if (authStatus === "authenticated") {
-    //         navigate("/dashboard");
-    //     }
-    // }, [authStatus]);
 
     return (
         <>
