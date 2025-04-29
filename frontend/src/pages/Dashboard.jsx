@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router";
 import { AuthContext } from "../providers/AuthProvider.jsx";
 import { updateMetrics, fetchMatches } from "../utils/apiControllers.js";
 import ListView from "../components/ListView";
@@ -9,8 +8,6 @@ import { User } from "lucide-react";
 const subjects = ["Maths", "Science", "History", "Geography", "English"];
 
 function Dashboard() {
-    const navigate = useNavigate();
-
     const { metrics } = useContext(AuthContext);
     const [strengths, setStrengths] = useState([]);
     const [weaknesses, setWeaknesses] = useState([]);
