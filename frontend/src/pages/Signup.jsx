@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook"
 import { AuthContext } from "../providers/AuthProvider"
 import { errorStyle, hideStyle } from "../utils/styles";
+import { signup } from "../utils/apiControllers";
 import styles from "./styles/Auth.module.scss";
 
 export default function Signup() {
@@ -34,25 +35,13 @@ export default function Signup() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const response = await fetch("http://localhost:5000/api/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                username: formData.username,
-                email: formData.email,
-                password: formData.password,
-            }),
-        });
-
-        const data = await response.json();
-        console.log(data);
-        if (data.success) {
-            localStorage.setItem("auth_token", data.auth_token);
-            localStorage.setItem("email", formData.email);
-            setIsSubmitted(true);
-        } else {
-            setErrorMsg(data.message);
+        const response = await signup(
+            formData.username, formData.email, formData.password);
+        if (response) {
+            setErrorMsg(response);
             setErrorMsgStyle(errorStyle);
+        } else {
+            setIsSubmitted(true);
         }
     };
 
