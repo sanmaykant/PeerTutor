@@ -34,6 +34,7 @@ io.on('connection', (socket) => {
 
   socket.on('join', (callId) => {
     socket.join(callId);
+    socket.to(callId).emit("join");
     console.log(`Socket ${socket.id} joined room ${callId}`);
   });
 
