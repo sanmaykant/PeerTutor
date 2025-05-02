@@ -111,16 +111,30 @@ export class VideoCallController {
         this._remoteUserAudio = new Audio();
     }
 
-    addRemoteScreenShareListener(listener) {
-        this.onRemoteScreenShare = listener; }
-    addRemoteCameraShareListener(listener) {
-        this.onRemoteCameraShare = listener; }
+    async init() {
+        this.localScreenStream = null;
+        this.remoteMediaStream = null;
+
+        this.userConnection = this._createUserConnection();
+        this.displayConnection = this._createDisplayConnection();
+
+        this.userConnection.addStream(
+            await navigator.mediaDevices.getUserMedia({ audio: true }));
+    }
+
+    mute() { console.log("muting..."); this._remoteUserAudio.muted = true; }
+    unmute() { console.log("unmuting..."); this._remoteUserAudio.muted = false; }
 
     async shareScreen() {
         this.localScreenStream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
             audio: true,
         });
+
+        if (this.onLocalScreenShareMuteListener) {
+            this.localScreenStream.getVideoTracks()[0].onended =
+                this.onLocalScreenShareMuteListener;
+        }
 
         this.displayConnection.addStream(this.localScreenStream);
         return this.localScreenStream;
@@ -143,6 +157,17 @@ export class VideoCallController {
         });
     }
 
+    addRemoteScreenShareListener(listener) {
+        this.onRemoteScreenShare = listener; }
+    addRemoteCameraShareListener(listener) {
+        this.onRemoteCameraShare = listener; }
+    addRemoteScreenShareMuteListener(listener) {
+        this.onRemoteScreenShareMute = listener; }
+    addRemoteCameraShareMuteListener(listener) {
+        this.onRemoteCameraShareMute = listener; }
+    addLocalScreenShareMuteListener(listener) {
+        this.onLocalScreenShareMuteListener = listener; }
+
     _createUserConnection() {
         const userConnection = new PeerConnection(this.roomId, "user");
 
@@ -158,8 +183,12 @@ export class VideoCallController {
                 if (this.onRemoteCameraShare) {
                     this.onRemoteCameraShare(event);
                 }
+
+                if (this.onRemoteCameraShareMute) {
+                    track.onmute = this.onRemoteCameraShareMute;
+                }
             }
-        })
+        });
 
         return userConnection;
     }
@@ -168,25 +197,19 @@ export class VideoCallController {
         const displayConnection = new PeerConnection(this.roomId, "display");
 
         displayConnection.addOntrackListener((event) => {
+            const track = event.track;
+
             if (this.onRemoteScreenShare) {
                 this.onRemoteScreenShare(event);
+            }
+
+            if (track.kind === "video") {
+                if (this.onRemoteScreenShareMute) {
+                    track.onmute = this.onRemoteScreenShareMute;
+                }
             }
         });
 
         return displayConnection;
     }
-
-    async init() {
-        this.localScreenStream = null;
-        this.remoteMediaStream = null;
-
-        this.userConnection = this._createUserConnection();
-        this.displayConnection = this._createDisplayConnection();
-
-        this.userConnection.addStream(
-            await navigator.mediaDevices.getUserMedia({ audio: true }));
-    }
-
-    mute() { console.log("muting..."); this._remoteUserAudio.muted = true; }
-    unmute() { console.log("unmuting..."); this._remoteUserAudio.muted = false; }
 }
