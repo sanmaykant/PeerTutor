@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { VideoCallController } from "../utils/webRtcController";
+import GridView from "../components/GridView";
+import styles from "./styles/Meet.module.scss"
 
-const Meet = () => {
+export default function Meet() {
     const [callId, setCallId] = useState('');
     const localScreenRef = useRef(null);
     const remoteScreenRef = useRef(null);
@@ -81,24 +83,14 @@ const Meet = () => {
                 <button onClick={shareCamera}>Share Camera</button>
                 <button onClick={stopCamera}>Stop Camera</button>
             </div>
-            <div>
-                <h2>Your Shared Screen</h2>
-                <video ref={localScreenRef} autoPlay muted style={{ width: '400px', border: '1px solid #ffffff' }} />
-            </div>
-            <div>
-                <h2>Remote Shared Screen</h2>
-                <video ref={remoteScreenRef} autoPlay style={{ width: '400px', border: '1px solid #ffffff' }} />
-            </div>
-            <div>
-                <h2>Your Shared Camera</h2>
-                <video ref={localCameraRef} autoPlay style={{ width: '400px', border: '1px solid #ffffff' }} />
-            </div>
-            <div>
-                <h2>Remote Shared Camera</h2>
-                <video ref={remoteCameraRef} autoPlay style={{ width: '400px', border: '1px solid #ffffff' }} />
+            <div className={styles.main}>
+            <GridView gap={10}>
+                <video ref={localScreenRef} autoPlay muted className={styles.video}/>
+                <video ref={remoteScreenRef} autoPlay className={styles.video}/>
+                <video ref={localCameraRef} autoPlay className={styles.video}/>
+                <video ref={remoteCameraRef} autoPlay className={styles.video}/>
+            </GridView>
             </div>
         </div>
     );
 };
-
-export default Meet;
