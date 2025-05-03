@@ -117,13 +117,25 @@ export class VideoCallController {
 
         this.userConnection = this._createUserConnection();
         this.displayConnection = this._createDisplayConnection();
-
-        this.userConnection.addStream(
-            await navigator.mediaDevices.getUserMedia({ audio: true }));
     }
 
-    mute() { console.log("muting..."); this._remoteUserAudio.muted = true; }
-    unmute() { console.log("unmuting..."); this._remoteUserAudio.muted = false; }
+    mute() { console.log("muting...");
+        if (!this.localAudioStream)
+            return;
+        this.localAudioStream.getTracks().forEach((track) => {
+            track.stop();
+        });
+    }
+
+    async unmute() {
+        console.log("unmuting...");
+        this.localAudioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+
+        this.userConnection.addStream(this.localAudioStream);
+        return this.localAudioStream;
+    }
 
     async shareScreen() {
         this.localScreenStream = await navigator.mediaDevices.getDisplayMedia({
@@ -149,7 +161,7 @@ export class VideoCallController {
         return this.localCameraStream;
     }
 
-    async stopCamera() {
+    stopCamera() {
         if (!this.localCameraStream)
             return;
         this.localCameraStream.getTracks().forEach((track) => {
