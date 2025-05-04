@@ -120,6 +120,22 @@ export class PeerConnection {
         this._registerSocketEvent("peer-disconnect", async (data) => {
             if (this.onDisconnectListener)
                 this.onDisconnectListener(data);
+
+            const senders = this.pc.getSenders();
+            senders.forEach(sender => {
+                sender.replaceTrack(null);
+                this.pc.removeTrack(sender)
+            });
+            this.pc.close();
+            delete this.pc;
+
+            this.pc = this._createPeerConnection();
+
+            const oldStreams = [...this.streams];
+            this.streams = [];
+            oldStreams.forEach((stream) => {
+                this.addStream(stream);
+            });
         });
 
         this._registerSocketEvent("event", async (data) => {
