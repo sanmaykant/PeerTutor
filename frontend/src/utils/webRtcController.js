@@ -11,12 +11,25 @@ export class PeerConnection {
         this._connect();
     }
 
-    addStream(stream) {
+    async addStream(stream) {
         this.streams.push(stream);
         stream.getTracks().forEach((track) => {
             this.pc.addTrack(track, stream);
         });
-        this._handshake();
+        await this._handshake();
+    }
+
+    close() { 
+        this.pc.close();
+        this._unregisterSocketEvent("join");
+        this._unregisterSocketEvent("offer");
+        this._unregisterSocketEvent("answer");
+        this._unregisterSocketEvent("ice-candidate");
+        this._unregisterSocketEvent("peer-connect");
+        this._unregisterSocketEvent("peer-disconnect");
+        this._unregisterSocketEvent("event");
+        this.pc.ontrack = null;
+        this.pc.onicecandidate = null;
     }
 
     addOntrackListener(listener) {
@@ -83,8 +96,10 @@ export class PeerConnection {
         });
     }
 
+    _unregisterSocketEvent(eventName) { this.socket.off(eventName); }
+
     _registerSocketEvents() {
-        this._registerSocketEvent("join", _ => this._handshake());
+        this._registerSocketEvent("join", async _ => await this._handshake());
 
         this._registerSocketEvent("offer", async (data) => {
             console.log("I was offered");
@@ -136,8 +151,8 @@ export class PeerConnection {
 
             const oldStreams = [...this.streams];
             this.streams = [];
-            oldStreams.forEach((stream) => {
-                this.addStream(stream);
+            oldStreams.forEach(async stream => {
+                await this.addStream(stream);
             });
         });
 
@@ -193,6 +208,10 @@ export class VideoCallController {
             this.localScreenStream.getVideoTracks()[0].onended = () => {
                 this.onLocalScreenShareMuteListener();
                 this.displayConnection.emitCustomEvent("remote-screen-stopped");
+
+                this.displayConnection.close();
+                delete this.displayConnection;
+                this.displayConnection = this._createDisplayConnection();
             }
         }
 
@@ -267,8 +286,6 @@ export class VideoCallController {
         const displayConnection = new PeerConnection(this.roomId, "display");
 
         displayConnection.addOntrackListener((event) => {
-            const track = event.track;
-
             if (this.onRemoteScreenShare) {
                 this.onRemoteScreenShare(event);
             }
