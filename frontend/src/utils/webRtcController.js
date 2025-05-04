@@ -20,9 +20,8 @@ export class PeerConnection {
     }
 
     addOntrackListener(listener) {
-        this.pc.ontrack = (event) => {
-            listener(event);
-        };
+        this.onTrackListener = listener;
+        this.pc.ontrack = (event) => { listener(event); };
     }
 
     addOnConnectListener(listener) { this.onConnectListener = listener; }
@@ -88,6 +87,7 @@ export class PeerConnection {
         this._registerSocketEvent("join", _ => this._handshake());
 
         this._registerSocketEvent("offer", async (data) => {
+            console.log("I was offered");
             await this.pc.setRemoteDescription(
                 new RTCSessionDescription(data.offer));
             const answer = await this.pc.createAnswer();
@@ -96,6 +96,7 @@ export class PeerConnection {
         });
 
         this._registerSocketEvent("answer", async (data) => {
+            console.log("I was answered");
             await this.pc.setRemoteDescription(
                 new RTCSessionDescription(data.answer));
             this._emitEvent("peer-connect");
@@ -130,6 +131,8 @@ export class PeerConnection {
             delete this.pc;
 
             this.pc = this._createPeerConnection();
+            if (this.onTrackListener)
+                this.pc.ontrack = (event) => { this.onTrackListener(event); };
 
             const oldStreams = [...this.streams];
             this.streams = [];
@@ -242,6 +245,7 @@ export class VideoCallController {
             const stream = event.streams[0];
 
             if (track.kind === "audio") {
+                console.log("here");
                 this._remoteUserAudio.srcObject = stream;
                 this._remoteUserAudio.autoplay = true;
                 this._remoteUserAudio.muted = false;
