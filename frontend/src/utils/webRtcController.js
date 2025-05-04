@@ -7,6 +7,7 @@ export class PeerConnection {
         this._purpose = purpose;
         this.socket = io("http://localhost:5001");
         this.pc = this._createPeerConnection();
+        this._connected = false;
         this._connect();
     }
 
@@ -24,8 +25,27 @@ export class PeerConnection {
         };
     }
 
+    addOnConnectListener(listener) { this.onConnectListener = listener; }
+    addOnDisconnectListener(listener) { this.onDisconnectListener = listener; }
+
+    emitCustomEvent(eventName, data) {
+        this.socket.emit(
+            "event", {
+                ...data,
+                eventName,
+                roomId: this.roomId,
+                purpose: this._purpose,
+            }
+        );
+    }
+    addCustomEventListener(listener) { this.customEventListener = listener; }
+
     _connect() {
         this._registerSocketEvents();
+        window.addEventListener("beforeunload", () => {
+            this.socket.emit("peer-disconnect", { roomId: this.roomId, purpose: this._purpose });
+            alert("pause");
+        });
         this.socket.emit(
             "join", { roomId: this.roomId, purpose: this._purpose });
     }
@@ -60,7 +80,6 @@ export class PeerConnection {
     _registerSocketEvents() {
         this.socket.off("join");
         this.socket.on("join", async (data) => {
-            console.log(data);
             if (data.roomId !== this.roomId || data.purpose !== this._purpose)
                 return;
             this._handshake();
@@ -68,10 +87,8 @@ export class PeerConnection {
 
         this.socket.off("offer");
         this.socket.on("offer", async (data) => {
-            console.log("I was offered");
             if (data.roomId !== this.roomId || data.purpose !== this._purpose)
                 return;
-            console.log(this._purpose, data.purpose);
             await this.pc.setRemoteDescription(
                 new RTCSessionDescription(data.offer));
             const answer = await this.pc.createAnswer();
@@ -82,12 +99,13 @@ export class PeerConnection {
 
         this.socket.off("answer");
         this.socket.on("answer", async (data) => {
-            console.log("I was answered");
             if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc)
                 return;
-            console.log(this._purpose, data.purpose);
             await this.pc.setRemoteDescription(
                 new RTCSessionDescription(data.answer));
+            this.socket.emit("peer-connect", { roomId: this.roomId, purpose: this._purpose });
+            if (this.onConnectListener)
+                this.onConnectListener(data);
         });
 
         this.socket.off("ice-candidate");
@@ -100,6 +118,27 @@ export class PeerConnection {
                 console.error('Error adding ICE candidate:', error);
             }
         });
+
+        this.socket.off("peer-connect");
+        this.socket.on("peer-connect", async (data) => {
+            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+            if (this.onConnectListener)
+                this.onConnectListener(data);
+        });
+
+        this.socket.off("peer-disconnect");
+        this.socket.on("peer-disconnect", async (data) => {
+            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+            if (this.onDisconnectListener)
+                this.onDisconnectListener(data);
+        });
+
+        this.socket.off("event");
+        this.socket.on("event", async (data) => {
+            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+            if (this.customEventListener)
+                this.customEventListener(data);
+        })
     }
 }
 
@@ -119,7 +158,8 @@ export class VideoCallController {
         this.displayConnection = this._createDisplayConnection();
     }
 
-    mute() { console.log("muting...");
+    mute() {
+        console.log("muting...");
         if (!this.localAudioStream)
             return;
         this.localAudioStream.getTracks().forEach((track) => {
@@ -144,8 +184,10 @@ export class VideoCallController {
         });
 
         if (this.onLocalScreenShareMuteListener) {
-            this.localScreenStream.getVideoTracks()[0].onended =
-                this.onLocalScreenShareMuteListener;
+            this.localScreenStream.getVideoTracks()[0].onended = () => {
+                this.onLocalScreenShareMuteListener();
+                this.displayConnection.emitCustomEvent("remote-screen-stopped");
+            }
         }
 
         this.displayConnection.addStream(this.localScreenStream);
@@ -169,6 +211,10 @@ export class VideoCallController {
         });
     }
 
+    addOnConnectListener(listener) {
+        this.onConnectListener = listener; }
+    addOnDisconnectListener(listener) {
+        this.onDisconnectListener = listener; }
     addRemoteScreenShareListener(listener) {
         this.onRemoteScreenShare = listener; }
     addRemoteCameraShareListener(listener) {
@@ -182,6 +228,11 @@ export class VideoCallController {
 
     _createUserConnection() {
         const userConnection = new PeerConnection(this.roomId, "user");
+
+        if (this.onConnectListener)
+            userConnection.addOnConnectListener(this.onConnectListener);
+        if (this.onDisconnectListener)
+            userConnection.addOnDisconnectListener(this.onDisconnectListener);
 
         userConnection.addOntrackListener((event) => {
             const track = event.track;
@@ -214,11 +265,12 @@ export class VideoCallController {
             if (this.onRemoteScreenShare) {
                 this.onRemoteScreenShare(event);
             }
+        });
 
-            if (track.kind === "video") {
-                if (this.onRemoteScreenShareMute) {
-                    track.onmute = this.onRemoteScreenShareMute;
-                }
+        displayConnection.addCustomEventListener((data) => {
+            if (data.eventName === "remote-screen-stopped") {
+                if (this.onRemoteScreenShareMute)
+                    this.onRemoteScreenShareMute();
             }
         });
 

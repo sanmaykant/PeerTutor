@@ -29,33 +29,47 @@ app.get("/", (req, res) => {
   res.send("Express & TypeScript Backend is running!");
 });
 
-io.on('connection', (socket) => {
+io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
-  socket.on('join', (data) => {
+  socket.on("join", (data) => {
     socket.join(data.roomId);
     socket.to(data.roomId).emit("join", data);
     console.log(`Socket ${socket.id} joined room ${data.roomId}`);
   });
 
-  socket.on('offer', (data) => {
+  socket.on("offer", (data) => {
     console.log(`Offer for room ${data.roomId} from ${socket.id}`);
-    socket.to(data.roomId).emit('offer', data);
+    socket.to(data.roomId).emit("offer", data);
   });
 
-  socket.on('answer', (data) => {
+  socket.on("answer", (data) => {
     console.log(`Answer for room ${data.roomId} from ${socket.id}`);
-    socket.to(data.roomId).emit('answer', data);
+    socket.to(data.roomId).emit("answer", data);
   });
 
-  socket.on('ice-candidate', (data) => {
+  socket.on("ice-candidate", (data) => {
     console.log(`ICE candidate for room ${data.roomId} from ${socket.id}`);
-    socket.to(data.roomId).emit('ice-candidate', data);
+    socket.to(data.roomId).emit("ice-candidate", data);
   });
 
-  socket.on('disconnect', () => {
+  socket.on("peer-connect", (data) => {
+    console.log(`User connected: ${socket.id}`);
+    socket.to(data.roomId).emit("peer-connect", data);
+  });
+
+  socket.on("peer-disconnect", (data) => {
+    console.log(`User disconnected: ${socket.id}`);
+    socket.to(data.roomId).emit("peer-disconnect", data);
+  });
+
+  socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
   });
+
+  socket.on("event", (data) => {
+      socket.to(data.roomId).emit("event", data);
+  })
 });
 
 
