@@ -29,25 +29,16 @@ export class PeerConnection {
     addOnDisconnectListener(listener) { this.onDisconnectListener = listener; }
 
     emitCustomEvent(eventName, data) {
-        this.socket.emit(
-            "event", {
-                ...data,
-                eventName,
-                roomId: this.roomId,
-                purpose: this._purpose,
-            }
-        );
+        this._emitEvent("event", { eventName, ...data });
     }
     addCustomEventListener(listener) { this.customEventListener = listener; }
 
     _connect() {
         this._registerSocketEvents();
         window.addEventListener("beforeunload", () => {
-            this.socket.emit("peer-disconnect", { roomId: this.roomId, purpose: this._purpose });
-            alert("pause");
+            this._emitEvent("peer-disconnect");
         });
-        this.socket.emit(
-            "join", { roomId: this.roomId, purpose: this._purpose });
+        this._emitEvent("join");
     }
 
     _createPeerConnection() {
@@ -56,16 +47,10 @@ export class PeerConnection {
         });
 
         pc.onicecandidate = (event) => {
-            if (event.candidate && this.roomId) {
-                this.socket.emit(
-                    "ice-candidate",
-                    {
-                        candidate: event.candidate,
-                        roomId: this.roomId,
-                        purpose: this._purpose
-                    }
-                );
-            }};
+            if (event.candidate && this.roomId)
+                this._emitEvent(
+                    "ice-candidate", { candidate: event.candidate });
+        };
 
         return pc;
     }
@@ -73,44 +58,52 @@ export class PeerConnection {
     async _handshake() {
         const offer = await this.pc.createOffer();
         await this.pc.setLocalDescription(offer);
+        this._emitEvent("offer", { offer });
+    }
+
+    _emitEvent(event, data) {
         this.socket.emit(
-            "offer", { roomId: this.roomId, purpose: this._purpose, offer });
+            event, {
+                roomId: this.roomId,
+                purpose: this._purpose,
+                ...data
+            }
+        );
+    }
+
+    _authenticateEvent(data) {
+        return data.roomId !== this.roomId || data.purpose !== this._purpose;
+    }
+
+    _registerSocketEvent(eventName, callback) {
+        this.socket.off(eventName);
+        this.socket.on(eventName, async (data) => {
+            if (this._authenticateEvent(data))
+                return;
+            await callback(data);
+        });
     }
 
     _registerSocketEvents() {
-        this.socket.off("join");
-        this.socket.on("join", async (data) => {
-            if (data.roomId !== this.roomId || data.purpose !== this._purpose)
-                return;
-            this._handshake();
-        });
+        this._registerSocketEvent("join", _ => this._handshake());
 
-        this.socket.off("offer");
-        this.socket.on("offer", async (data) => {
-            if (data.roomId !== this.roomId || data.purpose !== this._purpose)
-                return;
+        this._registerSocketEvent("offer", async (data) => {
             await this.pc.setRemoteDescription(
                 new RTCSessionDescription(data.offer));
             const answer = await this.pc.createAnswer();
             await this.pc.setLocalDescription(answer);
-            this.socket.emit("answer", {
-                roomId: this.roomId, purpose: this._purpose, answer });
+            this._emitEvent("answer", { answer });
         });
 
-        this.socket.off("answer");
-        this.socket.on("answer", async (data) => {
-            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc)
-                return;
+        this._registerSocketEvent("answer", async (data) => {
             await this.pc.setRemoteDescription(
                 new RTCSessionDescription(data.answer));
-            this.socket.emit("peer-connect", { roomId: this.roomId, purpose: this._purpose });
+            this._emitEvent("peer-connect");
             if (this.onConnectListener)
                 this.onConnectListener(data);
         });
 
-        this.socket.off("ice-candidate");
-        this.socket.on("ice-candidate", async (data) => {
-            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+        this._registerSocketEvent("ice-candidate", async (data) => {
             try {
                 await this.pc.addIceCandidate(
                     new RTCIceCandidate(data.candidate));
@@ -119,26 +112,20 @@ export class PeerConnection {
             }
         });
 
-        this.socket.off("peer-connect");
-        this.socket.on("peer-connect", async (data) => {
-            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+        this._registerSocketEvent("peer-connect", async (data) => {
             if (this.onConnectListener)
                 this.onConnectListener(data);
         });
 
-        this.socket.off("peer-disconnect");
-        this.socket.on("peer-disconnect", async (data) => {
-            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+        this._registerSocketEvent("peer-disconnect", async (data) => {
             if (this.onDisconnectListener)
                 this.onDisconnectListener(data);
         });
 
-        this.socket.off("event");
-        this.socket.on("event", async (data) => {
-            if (data.roomId !== this.roomId || this._purpose !== data.purpose || !this.pc) return;
+        this._registerSocketEvent("event", async (data) => {
             if (this.customEventListener)
                 this.customEventListener(data);
-        })
+        });
     }
 }
 
