@@ -1,6 +1,8 @@
+const API_ROOT = "http://localhost:5000";
+
 export const fetchMetrics = async () => {
     try {
-        const response = await fetch("http://localhost:5000/api/user/metrics", {
+        const response = await fetch(`${API_ROOT}/api/user/metrics`, {
             method: "GET",
             headers: {
                 auth_token: localStorage.getItem("auth_token")
@@ -14,7 +16,7 @@ export const fetchMetrics = async () => {
 }
 
 export const updateMetrics = async (strengths, weaknesses) => {
-    const response = await fetch("http://localhost:5000/api/user/metrics", {
+    const response = await fetch(`${API_ROOT}/api/user/metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -34,7 +36,7 @@ export const updateMetrics = async (strengths, weaknesses) => {
 
 export const fetchMatches = async () => {
     try {
-        const response = await fetch("http://localhost:5000/api/user/matches", {
+        const response = await fetch(`${API_ROOT}/api/user/matches`, {
             method: "GET",
             headers: {
                 "auth_token": localStorage.getItem("auth_token")
@@ -50,7 +52,7 @@ export const fetchMatches = async () => {
 
 export const login = async (email, password) => {
     try {
-        const response = await fetch("http://localhost:5000/api/auth/login", {
+        const response = await fetch(`${API_ROOT}/api/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -77,7 +79,7 @@ export const login = async (email, password) => {
 }
 
 export const signup = async (username, email, password) => {
-    const response = await fetch("http://localhost:5000/api/auth/signup", {
+    const response = await fetch(`${API_ROOT}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

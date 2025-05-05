@@ -41,7 +41,6 @@ const GridView = forwardRef(({ children, gap = 10 }, ref) => {
     const [gridSettings, setGridSettings] = useState({
         columns: 0, rows: 0, pin: null });
     const childrenCount = React.Children.count(children);
-    console.log(children);
 
     useImperativeHandle(ref, () => ({
         pin(i) { setGridSettings({ ...gridSettings, pin: i }); },
@@ -79,7 +78,8 @@ const GridView = forwardRef(({ children, gap = 10 }, ref) => {
             top = (row * (tileHeight + gap)) + 0.5 * gap;
             left = (col * (tileWidth + gap)) + 0.5 * gap;
 
-            const totalAvailableSpaces = gridSettings.columns * gridSettings.rows;
+            const totalAvailableSpaces =
+                gridSettings.columns * gridSettings.rows;
             if (row + 1 === gridSettings.rows &&
                 totalAvailableSpaces > childrenCount) {
                 const emptySpaces = totalAvailableSpaces - childrenCount;

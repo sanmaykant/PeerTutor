@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import { VideoCallController } from "../utils/webRtcController";
 import GridView from "../components/GridView";
 import UserTile from "../components/UserTile";
-
+import ToggleButton from "../components/ToggleButton";
 import {
     Mic,
     MicOff,
@@ -10,131 +10,183 @@ import {
     ScreenShare,
     Video,
     VideoOff
-} from 'lucide-react';
-import styles from "./styles/Meet.module.scss"
+} from "lucide-react";
+import styles from "./styles/Meet.module.scss";
 
-const ToggleButton = ({ children, eventListener = (_) => { } }) => {
-    const [isMuted, setIsMuted] = useState(true);
+function RenderTile({ refProp, video, keyProp }) {
+    return <UserTile ref={refProp} video={video} key={keyProp} />;
+}
 
-    const toggleMute = () => {
-        setIsMuted(!isMuted);
-        eventListener(!isMuted);
+const Controls = ({
+    onStartCall,
+    onMuteToggle,
+    onScreenShare,
+    onCameraToggle
+}) => {
+    return (
+        <div className={styles.controls}>
+            <ToggleButton eventListener={onStartCall}>
+                <Phone size={24} />
+                <Phone size={24} />
+            </ToggleButton>
+            <ToggleButton eventListener={onMuteToggle}>
+                <MicOff size={24} />
+                <Mic size={24} />
+            </ToggleButton>
+            <ToggleButton eventListener={onScreenShare}>
+                <ScreenShare size={24} />
+                <ScreenShare size={24} />
+            </ToggleButton>
+            <ToggleButton eventListener={onCameraToggle}>
+                <Video size={24} />
+                <VideoOff size={24} />
+            </ToggleButton>
+        </div>
+    );
+}
+
+function useVideoCall(refs) {
+    const [videoCallController, setVideoCallController] = useState(null);
+    const [tiles, setTiles] = useState([
+        { key: "localUser", ref: refs.userTileRef, video: null }
+    ]);
+
+    const updateTile = (key, data) => {
+        setTiles(prev => prev.some(tile => tile.key === key)
+            ? prev.map(tile => tile.key === key ? { ...tile, ...data } : tile)
+            : [...prev, { key, ...data }]
+        );
     };
 
-    return (
-        <button onClick={toggleMute} style={{
-            display: "flex", justifyContent: "center", alignItems: "center",
-            backgroundColor: isMuted ? "grey" : "black",
-        }}>
-            <span>
-                {isMuted ? children[0] : children[1]}
-            </span>
-        </button>
-    );
-};
+    const removeTile = (key) => {
+        setTiles(prev => prev.filter(tile => tile.key !== key));
+    };
 
-export default function Meet() {
-    const userTileRef = useRef(null);
-    const remoteUserRef = useRef(null);
-    const localScreenRef = useRef(null);
-    const remoteScreenRef = useRef(null);
-    const gridRef = useRef(null);
-    const [gridViewChildren, setGridViewChildren] = useState({});
-    const [videoCallController, setVideoCallController] = useState();
+    const startCall = async () => {
+        const videoCallController = new VideoCallController(3);
 
-    const startCall = async (callId) => {
-        const videoCallController = new VideoCallController(callId);
         videoCallController.addOnConnectListener(() => {
-            setGridViewChildren(prevState => ({
-                ...prevState,
-                remoteUserTile: <UserTile ref={remoteUserRef} key="remoteUser" />
-            }));
+            updateTile("remoteUser", { ref: refs.remoteUserRef, video: null });
         });
+
         videoCallController.addOnDisconnectListener(() => {
-            setGridViewChildren(({ remoteUserTile, remoteScreenTile, ...rest }) => rest);
-        })
+            removeTile("remoteUser");
+            removeTile("remoteScreen");
+        });
+
         videoCallController.addRemoteScreenShareListener((event) => {
-            setGridViewChildren(prevState => ({
-                ...prevState,
-                remoteScreenTile: <UserTile ref={remoteScreenRef} video={event.streams[0]} key="remoteScreen" />
-            }));
+            updateTile("remoteScreen",
+                { ref: refs.remoteScreenRef, video: event.streams[0] });
         });
-        videoCallController.addRemoteScreenShareMuteListener(_ => {
-            setGridViewChildren(({ remoteScreenTile, ...rest }) => rest);
+
+        videoCallController.addRemoteScreenShareMuteListener(() => {
+            removeTile("remoteScreen");
         });
+
         videoCallController.addRemoteCameraShareListener((event) => {
             const enableCamera = () => {
-                if (remoteUserRef.current) {
-                    remoteUserRef.current.enableVideo(event.streams[0]);
+                if (refs.remoteUserRef.current) {
+                    refs.remoteUserRef.current.enableVideo(event.streams[0]);
                 } else {
                     setTimeout(enableCamera, 1000);
                 }
-            }
+            };
             enableCamera();
         });
+
         videoCallController.addRemoteCameraShareMuteListener(() => {
-            if (remoteUserRef.current) {
-                remoteUserRef.current.disableVideo();
-            }
+            refs.remoteUserRef.current?.disableVideo();
         });
+
         videoCallController.addLocalScreenShareMuteListener(() => {
-            setGridViewChildren(({ localScreenTile, ...rest }) => rest);
+            removeTile("localScreen");
         });
+
         await videoCallController.init();
         setVideoCallController(videoCallController);
-    }
+    };
 
     const shareScreen = async () => {
+        if (!videoCallController) return;
         const mediaStream = await videoCallController.shareScreen();
-        setGridViewChildren(prevState => ({
-            ...prevState,
-            localScreenTile: <UserTile ref={localScreenRef} video={mediaStream} key="localScreen" />
-        }));
-    }
+        updateTile("localScreen",
+            { ref: refs.localScreenRef, video: mediaStream });
+    };
 
-    const mute = () => { videoCallController.mute(); }
-    const unmute = () => { videoCallController.unmute(); }
+    const mute = () => { videoCallController?.mute(); };
+    const unmute = () => { videoCallController?.unmute(); };
 
     const shareCamera = async () => {
+        if (!videoCallController) return;
         const mediaStream = await videoCallController.shareCamera();
-        if (userTileRef.current)
-            userTileRef.current.enableVideo(mediaStream);
-    }
+        refs.userTileRef.current?.enableVideo(mediaStream);
+    };
 
-    const stopCamera = async () => {
-        videoCallController.stopCamera();
-        if (userTileRef.current)
-            userTileRef.current.disableVideo();
-    }
+    const stopCamera = () => {
+        videoCallController?.stopCamera();
+        refs.userTileRef.current?.disableVideo();
+    };
+
+    return {
+        tiles,
+        startCall,
+        shareScreen,
+        mute,
+        unmute,
+        shareCamera,
+        stopCamera
+    };
+}
+
+export default function Meet() {
+    const refs = {
+        userTileRef: useRef(null),
+        remoteUserRef: useRef(null),
+        localScreenRef: useRef(null),
+        remoteScreenRef: useRef(null),
+        gridRef: useRef(null)
+    };
+
+    const {
+        tiles,
+        startCall,
+        shareScreen,
+        mute,
+        unmute,
+        shareCamera,
+        stopCamera
+    } = useVideoCall(refs);
+
+    const handleMuteToggle = (isMuted) => {
+        isMuted ? mute() : unmute();
+    };
+
+    const handleCameraToggle = (isSharing) => {
+        isSharing ? stopCamera() : shareCamera();
+    };
 
     return (
         <div>
             <div className={styles.main}>
                 <div className={styles.grid}>
-                    <GridView C={gridViewChildren} ref={gridRef} gap={10}>
-                        <UserTile ref={userTileRef} key="localUser" />
-                        {...Object.values(gridViewChildren)}
+                    <GridView ref={refs.gridRef} gap={10}>
+                        {tiles.map(tile => (
+                            <RenderTile
+                                key={tile.key}
+                                refProp={tile.ref}
+                                video={tile.video}
+                                keyProp={tile.key}
+                            />
+                        ))}
                     </GridView>
                 </div>
-                <div className={styles.controls}>
-                    <ToggleButton eventListener={() => startCall(3)}>
-                        <Phone size={24} />
-                        <Phone size={24} />
-                    </ToggleButton>
-                    <ToggleButton eventListener={(isMuted) => isMuted ? mute() : unmute()}>
-                        <MicOff size={24} />
-                        <Mic size={24} />
-                    </ToggleButton>
-                    <ToggleButton eventListener={_ => shareScreen()}>
-                        <ScreenShare size={24} />
-                        <ScreenShare size={24} />
-                    </ToggleButton>
-                    <ToggleButton eventListener={(isSharing) => isSharing ? stopCamera() : shareCamera()}>
-                        <Video size={24} />
-                        <VideoOff size={24} />
-                    </ToggleButton>
-                </div>
+                <Controls
+                    onStartCall={startCall}
+                    onMuteToggle={handleMuteToggle}
+                    onScreenShare={shareScreen}
+                    onCameraToggle={handleCameraToggle}
+                />
             </div>
         </div>
     );
-};
+}
