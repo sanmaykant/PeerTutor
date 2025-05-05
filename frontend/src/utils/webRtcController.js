@@ -19,6 +19,11 @@ export class PeerConnection {
         await this._handshake();
     }
 
+    removeStream(stream) {
+        this.stream = this.streams.filter(s => s !== stream);
+        this._handshake();
+    }
+
     close() { 
         this.pc.close();
         this._unregisterSocketEvent("join");
@@ -205,13 +210,12 @@ export class VideoCallController {
         });
 
         if (this.onLocalScreenShareMuteListener) {
-            this.localScreenStream.getVideoTracks()[0].onended = () => {
+            const videoTrack = this.localScreenStream.getVideoTracks()[0];
+            videoTrack.onended = async () => {
                 this.onLocalScreenShareMuteListener();
                 this.displayConnection.emitCustomEvent("remote-screen-stopped");
-
-                this.displayConnection.close();
-                delete this.displayConnection;
-                this.displayConnection = this._createDisplayConnection();
+                this.displayConnection.removeStream(this.localScreenStream);
+                this.localScreenStream = null;
             }
         }
 
@@ -286,6 +290,9 @@ export class VideoCallController {
         const displayConnection = new PeerConnection(this.roomId, "display");
 
         displayConnection.addOntrackListener((event) => {
+            event.streams[0].onremovetrack = () => {
+                console.log("track removed");
+            }
             if (this.onRemoteScreenShare) {
                 this.onRemoteScreenShare(event);
             }
@@ -293,8 +300,7 @@ export class VideoCallController {
 
         displayConnection.addCustomEventListener((data) => {
             if (data.eventName === "remote-screen-stopped") {
-                if (this.onRemoteScreenShareMute)
-                    this.onRemoteScreenShareMute();
+                this.onRemoteScreenShareMute?.();
             }
         });
 
