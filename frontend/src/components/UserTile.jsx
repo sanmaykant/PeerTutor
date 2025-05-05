@@ -3,7 +3,7 @@ import { User } from "lucide-react"
 import styles from "./styles/UserTile.module.scss"
 
 const UserTile = forwardRef((props, ref) => {
-    const { video = null, id = null } = props;
+    const { video=null, onClick=null } = props;
     const videoRef = useRef();
     const [isVideoOn, setIsVideoOn] = useState(false);
     const [videoSrc, setVideoSrc] = useState(null);
@@ -32,7 +32,7 @@ const UserTile = forwardRef((props, ref) => {
     }));
 
     return (
-        <div className={styles.card}>
+        <div onClick={() => { onClick?.(); }} className={styles.card}>
         {isVideoOn ?
             <video ref={videoRef} autoPlay muted className={styles.video}/>
             :

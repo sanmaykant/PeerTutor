@@ -13,8 +13,18 @@ import {
 } from "lucide-react";
 import styles from "./styles/Meet.module.scss";
 
-function RenderTile({ refProp, video, keyProp }) {
-    return <UserTile ref={refProp} video={video} key={keyProp} />;
+function RenderTile({ refProp, video, keyProp, gridRef, index }) {
+    return <UserTile
+                ref={refProp}
+                video={video}
+                key={keyProp}
+                onClick={() => {
+                    if (gridRef?.current?.getPin() === index)
+                        gridRef?.current?.unpin();
+                    else
+                        gridRef?.current?.pin(index);
+                }}
+            />;
 }
 
 const Controls = ({
@@ -170,12 +180,14 @@ export default function Meet() {
             <div className={styles.main}>
                 <div className={styles.grid}>
                     <GridView ref={refs.gridRef} gap={10}>
-                        {tiles.map(tile => (
+                        {tiles.map((tile, index) => (
                             <RenderTile
                                 key={tile.key}
                                 refProp={tile.ref}
                                 video={tile.video}
                                 keyProp={tile.key}
+                                gridRef={refs.gridRef}
+                                index={index}
                             />
                         ))}
                     </GridView>

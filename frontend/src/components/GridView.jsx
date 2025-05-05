@@ -44,7 +44,8 @@ const GridView = forwardRef(({ children, gap = 10 }, ref) => {
 
     useImperativeHandle(ref, () => ({
         pin(i) { setGridSettings({ ...gridSettings, pin: i }); },
-        unpin() { setGridSettings({...gridSettings, pin: null}); },
+        unpin() { setGridSettings({ ...gridSettings, pin: null}); },
+        getPin() { return gridSettings.pin; },
     }));
 
     const initGridSettings = () => {
@@ -52,7 +53,8 @@ const GridView = forwardRef(({ children, gap = 10 }, ref) => {
         setSize({ width, height, aspectRatio: width / height});
 
         const bestFit = bestFitGrid(childrenCount, width, height);
-        setGridSettings({ columns: bestFit.columns, rows: bestFit.rows });
+        setGridSettings((prevGridSettings) => ({ ...prevGridSettings,
+            columns: bestFit.columns, rows: bestFit.rows }));
     }
 
     useEffect(() => {
@@ -61,6 +63,7 @@ const GridView = forwardRef(({ children, gap = 10 }, ref) => {
 
         initGridSettings();
 
+        window.removeEventListener("resize", initGridSettings);
         window.addEventListener("resize", initGridSettings);
         return () => { window.removeEventListener("resize", initGridSettings); }
     }, [children]);
@@ -68,7 +71,7 @@ const GridView = forwardRef(({ children, gap = 10 }, ref) => {
     const gridStyles = React.Children.map(children, (_, i) => {
         let tileWidth, tileHeight, left, top;
 
-        if (gridSettings.pin == null) {
+        if (gridSettings.pin == null || childrenCount == 1) {
             tileWidth = (size.width / gridSettings.columns) - gap;
             tileHeight = (size.height / gridSettings.rows) - gap;
 
