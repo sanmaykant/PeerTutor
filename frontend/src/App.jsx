@@ -26,7 +26,7 @@ const router = createBrowserRouter([
         "element": <Login />,
     },
     {
-        path: "/meet",
+        path: "/meet/:peer",
         "element": <ProtectedRoute><Meet /></ProtectedRoute>,
     },
     {

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import styles from "./styles/ListView.module.scss";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Phone } from "lucide-react";
 
 const ListView = ({ users }) => {
+  const navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState(null);
 
   const toggleExpand = (index) => {
@@ -27,9 +29,12 @@ const ListView = ({ users }) => {
                 <p className={styles.email}>{user.email}</p>
                 <p className={styles.university}>{user.university}</p>
               </div>
+              <div>
+              <Phone style={{ marginRight: "1em" }} onClick={() => { navigate(`/meet/${user.username}`); }} />
               <ChevronRight
                 className={`${styles.icon} ${isExpanded ? styles.rotate : ""}`}
               />
+            </div>
             </div>
             <div
               className={`${styles.details} ${isExpanded ? styles.expanded : ""}`}

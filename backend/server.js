@@ -69,7 +69,17 @@ io.on("connection", (socket) => {
 
   socket.on("event", (data) => {
       socket.to(data.roomId).emit("event", data);
+  });
+
+  socket.on("join-chat", (user1, user2) => {
+      socket.join([ user1, user2 ].sort().toString());
+      console.log(user1, user2);
   })
+
+  socket.on("chat-message", ({ sender, reciever, ...message }) => {
+      console.log(sender, reciever, message);
+      socket.to([ sender, reciever ].sort().toString()).emit("chat-message", message);
+  });
 });
 
 

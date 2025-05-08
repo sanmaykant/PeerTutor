@@ -1,20 +1,20 @@
 import { useState } from "react";
 
 const ToggleButton = ({ children, eventListener = (_) => { } }) => {
-    const [isMuted, setIsMuted] = useState(true);
+    const [toggle, setToggle] = useState(false);
 
     const toggleMute = () => {
-        setIsMuted(!isMuted);
-        eventListener(!isMuted);
+        setToggle(!toggle);
+        eventListener(!toggle);
     };
 
     return (
         <button onClick={toggleMute} style={{
             display: "flex", justifyContent: "center", alignItems: "center",
-            backgroundColor: isMuted ? "grey" : "black",
+            backgroundColor: toggle ? "black" : "grey",
         }}>
             <span>
-                {isMuted ? children[0] : children[1]}
+                {toggle ? children[1] : children[0]}
             </span>
         </button>
     );

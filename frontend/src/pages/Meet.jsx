@@ -1,15 +1,22 @@
-import React, { useState, useRef } from "react";
-import { VideoCallController } from "../utils/webRtcController";
+import { useParams } from "react-router";
+import React, { useState, useRef, useContext, useEffect } from "react";
+
 import GridView from "../components/GridView";
 import UserTile from "../components/UserTile";
+import ChatView from "../components/ChatView";
 import ToggleButton from "../components/ToggleButton";
+
+import { VideoCallController } from "../utils/webRtcController";
+import { AuthContext } from "../providers/AuthProvider";
+
 import {
     Mic,
     MicOff,
-    Phone,
     ScreenShare,
     Video,
-    VideoOff
+    VideoOff,
+    MessageSquare,
+    MessageSquareOff,
 } from "lucide-react";
 import styles from "./styles/Meet.module.scss";
 
@@ -28,17 +35,13 @@ function RenderTile({ refProp, video, keyProp, gridRef, index }) {
 }
 
 const Controls = ({
-    onStartCall,
     onMuteToggle,
     onScreenShare,
-    onCameraToggle
+    onCameraToggle,
+    onChatToggle,
 }) => {
     return (
         <div className={styles.controls}>
-            <ToggleButton eventListener={onStartCall}>
-                <Phone size={24} />
-                <Phone size={24} />
-            </ToggleButton>
             <ToggleButton eventListener={onMuteToggle}>
                 <MicOff size={24} />
                 <Mic size={24} />
@@ -51,11 +54,15 @@ const Controls = ({
                 <Video size={24} />
                 <VideoOff size={24} />
             </ToggleButton>
+            <ToggleButton eventListener={onChatToggle}>
+                <MessageSquare size={24} />
+                <MessageSquareOff size={24} />
+            </ToggleButton>
         </div>
     );
 }
 
-function useVideoCall(refs) {
+function useVideoCall(refs, roomId) {
     const [videoCallController, setVideoCallController] = useState(null);
     const [tiles, setTiles] = useState([
         { key: "localUser", ref: refs.userTileRef, video: null }
@@ -73,7 +80,7 @@ function useVideoCall(refs) {
     };
 
     const startCall = async () => {
-        const videoCallController = new VideoCallController(3);
+        const videoCallController = new VideoCallController(roomId);
 
         videoCallController.addOnConnectListener(() => {
             updateTile("remoteUser", { ref: refs.remoteUserRef, video: null });
@@ -149,6 +156,8 @@ function useVideoCall(refs) {
 }
 
 export default function Meet() {
+    const { peer } = useParams();
+    const { user } = useContext(AuthContext);
     const refs = {
         userTileRef: useRef(null),
         remoteUserRef: useRef(null),
@@ -156,6 +165,7 @@ export default function Meet() {
         remoteScreenRef: useRef(null),
         gridRef: useRef(null)
     };
+    const [chatInView, setChatInView] = useState(false);
 
     const {
         tiles,
@@ -165,15 +175,23 @@ export default function Meet() {
         unmute,
         shareCamera,
         stopCamera
-    } = useVideoCall(refs);
+    } = useVideoCall(refs, [ user.username, peer ].sort().toString());
 
     const handleMuteToggle = (isMuted) => {
-        isMuted ? mute() : unmute();
+        isMuted ? unmute() : mute();
     };
 
     const handleCameraToggle = (isSharing) => {
-        isSharing ? stopCamera() : shareCamera();
+        isSharing ? shareCamera() : stopCamera();
     };
+
+    const handleChatToggle = (inView) => {
+        setChatInView(inView);
+    }
+
+    useEffect(() => {
+        startCall();
+    }, []);
 
     return (
         <div>
@@ -192,13 +210,20 @@ export default function Meet() {
                         ))}
                     </GridView>
                 </div>
+                <div style={{
+                    width: chatInView ? "25%" : "0%",
+                    display: chatInView ? "block" : "none",
+                    zIndex: 1,
+                }} className={styles.chatView}>
+                    <ChatView peer={peer} />
+                </div>
                 <Controls
-                    onStartCall={startCall}
                     onMuteToggle={handleMuteToggle}
                     onScreenShare={shareScreen}
                     onCameraToggle={handleCameraToggle}
+                    onChatToggle={handleChatToggle}
                 />
             </div>
         </div>
     );
-}
+};
