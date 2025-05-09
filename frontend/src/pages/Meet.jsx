@@ -212,9 +212,10 @@ export default function Meet() {
                 </div>
                 <div style={{
                     width: chatInView ? "25%" : "0%",
-                    display: chatInView ? "block" : "none",
+                    transform: chatInView ? "translateX(0%)" : "translateX(100%)",
+                    transition: "transform 0.75s cubic-bezier(0.16, 1, 0.3, 1)",
                     zIndex: 1,
-                }} className={styles.chatView}>
+                }}>
                     <ChatView peer={peer} />
                 </div>
                 <Controls
