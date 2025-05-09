@@ -10,6 +10,8 @@ const ChatView = ({ peer }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const messagesEndRef = useRef(null);
+    const containerRef = useRef();
+    const [inView, setInView] = useState(false);
 
     useEffect(() => {
         socket.emit("join-chat", user.username, peer);
@@ -23,8 +25,22 @@ const ChatView = ({ peer }) => {
     }, []);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+        const observer = new IntersectionObserver(([entry]) => {
+            setInView(entry.isIntersecting);
+        }, { rootMargin: "-10px" });
+        if (containerRef.current)
+            observer.observe(containerRef.current);
+
+        return () => {
+            if (containerRef.current)
+                observer.unobserve(containerRef.current);
+        }
+    })
+
+    useEffect(() => {
+        if (inView)
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, inView]);
 
     const sendMessage = () => {
         if (input.trim() === "") return;
@@ -49,7 +65,7 @@ const ChatView = ({ peer }) => {
     };
 
     return (
-        <div className={styles.chatContainer}>
+        <div className={styles.chatContainer} ref={containerRef}>
             <div className={styles.chatMessages}>
                 {messages.map((msg, index) => (
                     <div key={index} className={styles.chatMessage}>
