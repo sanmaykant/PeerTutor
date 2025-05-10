@@ -11,6 +11,10 @@ export class PeerConnection {
         this._connect();
     }
 
+    getStatus() {
+        return this.pc.connectionState;
+    }
+
     async addStream(stream) {
         this.streams.push(stream);
         stream.getTracks().forEach((track) => {
@@ -24,7 +28,7 @@ export class PeerConnection {
         this._handshake();
     }
 
-    close() { 
+    close() {
         this.pc.close();
         this._unregisterSocketEvent("join");
         this._unregisterSocketEvent("offer");
@@ -55,6 +59,9 @@ export class PeerConnection {
         window.addEventListener("beforeunload", () => {
             this._emitEvent("peer-disconnect");
         });
+        window.addEventListener("popstate", () => {
+            this._emitEvent("peer-disconnect");
+        })
         this._emitEvent("join");
     }
 
@@ -182,6 +189,18 @@ export class VideoCallController {
 
         this.userConnection = this._createUserConnection();
         this.displayConnection = this._createDisplayConnection();
+
+        window.addEventListener("popstate", () => {
+            this.mute();
+            this.stopCamera();
+            this._emitEvent("peer-disconnect");
+        })
+    }
+
+    close() {
+        console.log("closing...");
+        this.userConnection?.close();
+        this.displayConnection?.close();
     }
 
     mute() {

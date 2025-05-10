@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js"
 import routes from "./routes/index.js";
+import ChatMessage from "./models/chat.js"
+import User from "./models/user.js"
 
 dotenv.config();
 connectDB();
@@ -76,8 +78,15 @@ io.on("connection", (socket) => {
       console.log(user1, user2);
   })
 
-  socket.on("chat-message", ({ sender, reciever, ...message }) => {
-      console.log(sender, reciever, message);
+  socket.on("chat-message", async ({ sender, reciever, ...message }) => {
+      const senderUser = await User.findOne({ username: sender });
+      const recieverUser = await User.findOne({ username: reciever });
+      const chatMessage = new ChatMessage({
+          sender: senderUser._id,
+          recipient: recieverUser._id,
+          message: message.text,
+      });
+      await chatMessage.save();
       socket.to([ sender, reciever ].sort().toString()).emit("chat-message", message);
   });
 });

@@ -4,6 +4,7 @@ import {
     updateMetrics,
     fetchMetrics,
     fetchMatches,
+    fetchChats,
 } from "../controllers/user/userController.js"
 
 const router = Router();
@@ -20,6 +21,9 @@ router.get("/matches", (req, res, next) => {
 })
 router.post("/update", (req, res, next) => {
     updateUser(req, res).catch(next);
+})
+router.get("/chats", (req, res, next) => {
+    fetchChats(req, res).catch(next);
 })
 
 export default router;

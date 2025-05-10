@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import styles from "./styles/ListView.module.scss";
-import { ChevronRight, Phone } from "lucide-react";
+import { ChevronRight, MessageSquare, Phone } from "lucide-react";
 
-const ListView = ({ users }) => {
+const ListView = ({ users, chatCallback=() => {} }) => {
   const navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState(null);
 
@@ -30,15 +30,27 @@ const ListView = ({ users }) => {
                 <p className={styles.university}>{user.university}</p>
               </div>
               <div>
-              <Phone style={{ marginRight: "1em" }} onClick={() => { navigate(`/meet/${user.username}`); }} />
+              <MessageSquare
+                style={{ marginRight: "1em" }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    chatCallback(user.username);
+                }}
+              />
+              <Phone
+                style={{ marginRight: "1em" }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/meet/${user.username}`);
+                }}
+              />
               <ChevronRight
                 className={`${styles.icon} ${isExpanded ? styles.rotate : ""}`}
               />
             </div>
             </div>
-            <div
-              className={`${styles.details} ${isExpanded ? styles.expanded : ""}`}
-            >
+            <div className={
+                `${styles.details} ${isExpanded ? styles.expanded : ""}`}>
               <div className={styles.section}>
                 <strong>Strengths:</strong>
                 <ul>

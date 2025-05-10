@@ -1,4 +1,5 @@
 import User from "../../models/user.js";
+import ChatMessage from "../../models/chat.js"
 import Joi from "joi";
 
 export const userSchema = Joi.object({
@@ -51,16 +52,19 @@ export const updateUser = async (req, res) => {
             { new: true } 
         );
 
+        const {_id, __v, password, ...updatedUserDataToSend} = result.toJSON();
+        console.log(result, updatedUserDataToSend);
+
         return res.status(200).json({
             message: "User metrics updated successfully.",
-            user: result, 
+            user: updatedUserDataToSend, 
         });
 
     } catch (error) {
         console.error("Update metrics error:", error);
         return res.status(500).json({ message: "Server error while updating metrics." });
     }
-}
+};
 
 export const updateMetrics = async (req, res) => {
     try {
@@ -123,7 +127,7 @@ export const fetchMetrics = async (req, res) => {
         console.error("Fetch metrics error:", error);
         return res.status(500).json({ message: "Server error while fetching metrics." });
     }
-}
+};
 
 export const fetchMatches = async(req, res) => {
     try {
@@ -189,4 +193,31 @@ export const fetchMatches = async(req, res) => {
     } catch (error) {
 
     }
-}
+};
+
+export const fetchChats = async (req, res) => {
+    const user = req.user;
+    const otherUser = await User.findOne({ username: req.headers.username });
+
+    const chatMessages = (await ChatMessage.find({
+        $or: [
+            { sender: user, recipient: otherUser },
+            { sender: otherUser, recipient: user },
+        ],
+    })
+        .select("-_id -__v")
+        .populate("sender", "username")
+        .populate("recipient", "username")
+        .sort({ timestmap: 1 }))
+        .map(message => ({
+            sender: message.sender.username,
+            recipient: message.recipient.username,
+            message: message.message,
+            timestamp: message.timestamp
+          }));
+
+    return res.status(200).json({
+        success: true,
+        messages: chatMessages,
+    });
+};

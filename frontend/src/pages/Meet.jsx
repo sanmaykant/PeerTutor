@@ -8,6 +8,7 @@ import ToggleButton from "../components/ToggleButton";
 
 import { VideoCallController } from "../utils/webRtcController";
 import { AuthContext } from "../providers/AuthProvider";
+import { fetchChats } from "../utils/apiControllers";
 
 import {
     Mic,
@@ -79,28 +80,26 @@ function useVideoCall(refs, roomId) {
         setTiles(prev => prev.filter(tile => tile.key !== key));
     };
 
-    const startCall = async () => {
-        const videoCallController = new VideoCallController(roomId);
-
-        videoCallController.addOnConnectListener(() => {
+    const startCall = async (controller) => {
+        controller.addOnConnectListener(() => {
             updateTile("remoteUser", { ref: refs.remoteUserRef, video: null });
         });
 
-        videoCallController.addOnDisconnectListener(() => {
+        controller.addOnDisconnectListener(() => {
             removeTile("remoteUser");
             removeTile("remoteScreen");
         });
 
-        videoCallController.addRemoteScreenShareListener((event) => {
+        controller.addRemoteScreenShareListener((event) => {
             updateTile("remoteScreen",
                 { ref: refs.remoteScreenRef, video: event.streams[0] });
         });
 
-        videoCallController.addRemoteScreenShareMuteListener(() => {
+        controller.addRemoteScreenShareMuteListener(() => {
             removeTile("remoteScreen");
         });
 
-        videoCallController.addRemoteCameraShareListener((event) => {
+        controller.addRemoteCameraShareListener((event) => {
             const enableCamera = () => {
                 if (refs.remoteUserRef.current) {
                     refs.remoteUserRef.current.enableVideo(event.streams[0]);
@@ -111,16 +110,16 @@ function useVideoCall(refs, roomId) {
             enableCamera();
         });
 
-        videoCallController.addRemoteCameraShareMuteListener(() => {
+        controller.addRemoteCameraShareMuteListener(() => {
             refs.remoteUserRef.current?.disableVideo();
         });
 
-        videoCallController.addLocalScreenShareMuteListener(() => {
+        controller.addLocalScreenShareMuteListener(() => {
             removeTile("localScreen");
         });
 
-        await videoCallController.init();
-        setVideoCallController(videoCallController);
+        await controller.init();
+        setVideoCallController(controller);
     };
 
     const shareScreen = async () => {
@@ -144,9 +143,17 @@ function useVideoCall(refs, roomId) {
         refs.userTileRef.current?.disableVideo();
     };
 
+    useEffect(() => {
+        const controller = new VideoCallController(roomId);
+        startCall(controller);
+        return () => {
+            console.log("closing call...", controller);
+            controller.close();
+        }
+    }, []);
+
     return {
         tiles,
-        startCall,
         shareScreen,
         mute,
         unmute,
@@ -158,6 +165,7 @@ function useVideoCall(refs, roomId) {
 export default function Meet() {
     const { peer } = useParams();
     const { user } = useContext(AuthContext);
+    const [chatHistory, setChatHistory] = useState([]);
     const refs = {
         userTileRef: useRef(null),
         remoteUserRef: useRef(null),
@@ -169,7 +177,6 @@ export default function Meet() {
 
     const {
         tiles,
-        startCall,
         shareScreen,
         mute,
         unmute,
@@ -190,7 +197,10 @@ export default function Meet() {
     }
 
     useEffect(() => {
-        startCall();
+        (async () => {
+            const chats = await fetchChats(peer);
+            setChatHistory(chats);
+        })();
     }, []);
 
     return (
@@ -216,7 +226,7 @@ export default function Meet() {
                     transition: "transform 0.75s cubic-bezier(0.16, 1, 0.3, 1)",
                     zIndex: 1,
                 }}>
-                    <ChatView peer={peer} />
+                    <ChatView key={chatHistory.length} peer={peer} chatHistory={chatHistory} />
                 </div>
                 <Controls
                     onMuteToggle={handleMuteToggle}

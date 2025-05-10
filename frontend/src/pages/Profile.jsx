@@ -153,7 +153,7 @@ function Profile() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         {subjects.map((subject) => (
                             <div key={subject} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <label style={{ minWidth: "150px" }}>{subject}:</label>
+                                <label style={{ minWidth: "150px", color: "#000" }}>{subject}:</label>
                                 <input
                                     type="number"
                                     min="0"

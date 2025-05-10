@@ -5,9 +5,9 @@ import { AuthContext } from "../providers/AuthProvider.jsx"
 
 const socket = io("http://localhost:5001");
 
-const ChatView = ({ peer }) => {
+const ChatView = ({ peer, chatHistory=[], onMessage=()=>{} }) => {
     const { user } = useContext(AuthContext);
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState(chatHistory);
     const [input, setInput] = useState("");
     const messagesEndRef = useRef(null);
     const containerRef = useRef();
@@ -16,6 +16,9 @@ const ChatView = ({ peer }) => {
     useEffect(() => {
         socket.emit("join-chat", user.username, peer);
         socket.on("chat-message", (message) => {
+            onMessage(message);
+            if (message.user !== peer)
+                return;
             setMessages(prev => [...prev, message]);
         });
 
@@ -35,7 +38,7 @@ const ChatView = ({ peer }) => {
             if (containerRef.current)
                 observer.unobserve(containerRef.current);
         }
-    })
+    });
 
     useEffect(() => {
         if (inView)
@@ -54,6 +57,7 @@ const ChatView = ({ peer }) => {
         socket.emit("chat-message",
             { ...message, sender: user?.username, reciever: peer });
         setMessages(prev => [...prev, message]);
+        onMessage(message);
         setInput("");
     };
 

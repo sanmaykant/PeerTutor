@@ -106,3 +106,20 @@ export const signup = async (username, email, password) => {
         return data.message;
     }
 }
+
+export const fetchChats = async (user) => {
+    try {
+        const response = await fetch("http://localhost:5000/api/user/chats", {
+            method: "GET",
+            headers: {
+                "auth_token": localStorage.getItem("auth_token"),
+                username: user,
+            },
+        });
+        const chatHistory = await response.json();
+        chatHistory.messages = chatHistory.messages.map(
+            ({ sender, recipient, ...chat }) => (
+                { user: sender, text: chat.message, ...chat }));
+        return chatHistory.messages;
+    } catch (e) { console.log(e); }
+}
