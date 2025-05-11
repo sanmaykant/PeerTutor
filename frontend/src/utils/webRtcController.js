@@ -190,17 +190,29 @@ export class VideoCallController {
         this.userConnection = this._createUserConnection();
         this.displayConnection = this._createDisplayConnection();
 
-        window.addEventListener("popstate", () => {
+        this._onPopState = () => {
             this.mute();
             this.stopCamera();
             this._emitEvent("peer-disconnect");
-        })
+        };
+        window.addEventListener("popstate", this._onPopState);
     }
 
     close() {
         console.log("closing...");
         this.userConnection?.close();
         this.displayConnection?.close();
+
+        this.localAudioStream?.getTracks().forEach(t => t.stop());
+        this.localCameraStream?.getTracks().forEach(t => t.stop());
+        this.localScreenStream?.getTracks().forEach(t => t.stop());
+
+        this.localAudioStream = null;
+        this.localCameraStream = null;
+        this.localScreenStream = null;
+
+        this._remoteUserAudio.srcObject = null;
+        window.removeEventListener("popstate", this._onPopState);
     }
 
     mute() {
