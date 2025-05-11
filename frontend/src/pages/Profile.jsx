@@ -1,18 +1,22 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import styles from "./styles/Profile.module.scss";
 import { AuthContext } from "../providers/AuthProvider";
 
 function Profile() {
     const { user } = useContext(AuthContext);
     const [editable, setEditable] = useState(false);
+      const subjects = ["Operating System", "Computer Architecture", "Database Management", "Software Engineering", "Computer Networks"];
+
     const [formData, setFormData] = useState({
-        username: user.username || "",
-        email: user.email || "",
-        age: user.age || "",
-        gender: user.gender || "",
-        university: user.university || "",
-        strengths: user.strengths || [],
-        weaknesses: user.weaknesses || []
+      username: user.username || "",
+      email: user.email || "",
+      age: user.age || "",
+      gender: user.gender || "",
+      university: user.university || "",
+      marks: subjects.reduce((acc, subject) => {
+        acc[subject] = user?.marks?.[subject] || ""; 
+        return acc;
+      }, {}),
     });
 
     const handleFormUpdate = (e) => {
@@ -23,13 +27,38 @@ function Profile() {
         }));
     };
 
-    const handleListChange = (e, key) => {
-        const selected = Array.from(e.target.selectedOptions).map((opt) => opt.value);
-        setFormData((prev) => ({ ...prev, [key]: selected }));
+    const handleMarkChange = (subject, value) => {
+        const numValue = parseInt(value);
+        console.log(numValue);
+        if (value === "" || (!isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
+            setFormData(prevState => ({
+                ...prevState,
+                marks: {
+                    ...prevState.marks,
+                    [subject]: value
+                }
+            }));
+        }
+    };
+
+    const handleEdit = () => {
+        console.log("Edit button clicked, editable:", editable);
+        setEditable(true);
+        console.log("After setEditable, editable:", editable);
     };
 
     const handleSave = () => {
         setEditable(false);
+        const payload = {
+            username: formData.username,
+            email: formData.email,
+            age: formData.age,
+            gender: formData.gender,
+            university: formData.university,
+            marks: formData.marks,
+        };
+        console.log("Sending Payload:", payload);  
+    
         (async () => {
             try {
                 const response = await fetch("http://localhost:5000/api/user/update", {
@@ -38,11 +67,9 @@ function Profile() {
                         "Content-Type": "application/json",
                         auth_token: localStorage.getItem("auth_token"),
                     },
-                    body: JSON.stringify({
-                        ...formData
-                    })
-                })
-
+                    body: JSON.stringify(payload),
+                });
+    
                 const jsonResponse = await response.json();
                 console.log(jsonResponse);
             } catch (e) {
@@ -50,14 +77,12 @@ function Profile() {
             }
         })();
     };
-
-    const subjects = ["Maths", "Science", "History", "Geography", "English"];
-
     return (
         <div className={styles.mainContainer}>
             <div className={styles.profileContainer}>
                 <h2 className={styles.profileTitle}>My Profile</h2>
 
+                {/* Username */}
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>Username</label>
                     <input
@@ -70,6 +95,7 @@ function Profile() {
                     />
                 </div>
 
+                {/* Email */}
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>Email</label>
                     <input
@@ -82,6 +108,7 @@ function Profile() {
                     />
                 </div>
 
+                {/* Age */}
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>Age</label>
                     <input
@@ -94,6 +121,7 @@ function Profile() {
                     />
                 </div>
 
+                {/* Gender */}
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>Gender</label>
                     <input
@@ -106,6 +134,7 @@ function Profile() {
                     />
                 </div>
 
+                {/* University */}
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>University</label>
                     <input
@@ -118,43 +147,38 @@ function Profile() {
                     />
                 </div>
 
+                {/* Subject Marks */}
                 <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Strengths</label>
-                    <select
-                        className={styles.select}
-                        multiple
-                        username="strengths"
-                        value={formData.strengths}
-                        onChange={(e) => handleListChange(e, "strengths")}
-                        disabled={!editable}
-                    >
+                    <label className={styles.label}>Subject Marks</label>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         {subjects.map((subject) => (
-                            <option key={subject} value={subject}>{subject}</option>
+                            <div key={subject} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <label style={{ minWidth: "150px" }}>{subject}:</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={formData.marks?.[subject] || ""}
+                                    onChange={(e) => handleMarkChange(subject, e.target.value)}
+                                    disabled={!editable}
+                                    style={{
+                                        padding: "0.5rem",
+                                        borderRadius: "4px",
+                                        border: "1px solid #ccc",
+                                        width: "100px",
+                                        backgroundColor: editable ? "white" : "#f5f5f5"
+                                    }}
+                                />
+                            </div>
                         ))}
-                    </select>
-                </div>
-
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Weaknesses</label>
-                    <select
-                        className={styles.select}
-                        multiple
-                        username="weaknesses"
-                        value={formData.weaknesses}
-                        onChange={(e) => handleListChange(e, "weaknesses")}
-                        disabled={!editable}
-                    >
-                        {subjects.map((subject) => (
-                            <option key={subject} value={subject}>{subject}</option>
-                        ))}
-                    </select>
+                    </div>
                 </div>
 
                 <div className={styles.buttonGroup}>
                     {editable ? (
-                        <button className={styles.saveButton} onClick={handleSave}>Save</button>
+                        <button className={styles.saveButton} onClick={handleSave}>Save Profile</button>
                     ) : (
-                        <button className={styles.editButton} onClick={() => setEditable(true)}>Edit</button>
+                        <button className={styles.editButton} onClick={handleEdit}>Edit Profile</button>
                     )}
                 </div>
             </div>

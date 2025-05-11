@@ -87,6 +87,7 @@ const authorized = (res, user) => {
             university: user.university,
             strengths: user.strengths,
             weaknesses: user.weaknesses,
+            marks: user.marks
         },
         success: true,
     });

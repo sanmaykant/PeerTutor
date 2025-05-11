@@ -4,70 +4,163 @@ import { updateMetrics, fetchMatches } from "../utils/apiControllers.js";
 import ListView from "../components/ListView";
 import styles from "./styles/Dashboard.module.scss";
 import { User } from "lucide-react";
+import { useNavigate } from "react-router"
 
-const subjects = ["Maths", "Science", "History", "Geography", "English"];
+
+const subjects = [
+  "Operating System",
+  "Computer Architecture",
+  "Database Management",
+  "Software Engineering",
+  "Computer Networks"
+];
 
 function Dashboard() {
-    const { metrics } = useContext(AuthContext);
-    const [strengths, setStrengths] = useState([]);
-    const [weaknesses, setWeaknesses] = useState([]);
-    const [matches, setMatches] = useState([]);
-    const formInput = metrics.strengths.length === 0 && metrics.weaknesses.length === 0;
-    console.log(matches);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (formInput) { return; }
+  const { metrics } = useContext(AuthContext);
+  const [matches, setMatches] = useState([]);
+  const [showMatches, setShowMatches] = useState(false);
+  const formInput = metrics.strengths.length === 0 && metrics.weaknesses.length === 0;
+  const [marks, setMarks] = useState({});
 
-        (async () => {
-            const matches = await fetchMatches();
-            setMatches(matches);
-        })();
-    }, []);
+  useEffect(() => {
+    if (!formInput) {
+      (async () => {
+        const initialMatches = await fetchMatches();
+        setMatches(initialMatches);
+        setShowMatches(true);
+      })();
+    }
+  }, [formInput]);
 
-    const submit = async (e) => {
-        e.preventDefault();
-        updateMetrics(strengths, weaknesses);
-        window.location.reload();
-    };
+  const handleMarkChange = (subject, value) => {
+    const numValue = parseInt(value);
+    if (value === "" || (!isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
+      setMarks((prev) => ({
+        ...prev,
+        [subject]: value
+      }));
+    }
+  };
 
-    const handleMultiSelect = (e, setter) => {
-        const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
-        setter(selected);
-    };
+  const submit = async (e) => {
+    e.preventDefault();
 
-    return (
-        <>
-        <div className={styles.mainContainer}>
-        {formInput ? (
-            <form onSubmit={submit} className={styles.form}>
-                <h2 className={styles.formTitle}>Sign Up</h2>
+    console.log("Submitting marks:", marks);
 
-                <label className={styles.label}>Strengths</label>
-                <select multiple onChange={(e) => handleMultiSelect(e, setStrengths)} className={styles.select}>
-                    {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
+    const token = localStorage.getItem("auth_token");
 
-                <label className={styles.label}>Weaknesses</label>
-                <select multiple onChange={(e) => handleMultiSelect(e, setWeaknesses)} className={styles.select}>
-                    {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
+    if (token) {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      console.log("Decoded payload:", decoded);
+      const currentTime = Date.now() / 1000;
+      if (decoded.exp < currentTime) {
+        console.log("Token has expired.");
+      } else {
+        console.log("Token is valid.");
+      }
+    }
 
-                <button type="submit">Register</button>
-            </form>
-        ) : (
-            <>
-            <h1 className={styles.heading}>Matches</h1>
-            <ListView users={matches} />
-            <a href="/profile" className={styles.user}>
-              <User
-                className={styles.icon}
+    try {
+      const response = await updateMetrics(marks);
+      console.log("Backend response:", response);
+
+      if (response && response.status === 200) {
+        const newMatches = await fetchMatches();
+        console.log("await matches");
+        setMatches(newMatches);
+        console.log("new matches");
+        setShowMatches(true);
+      }
+      window.location.reload();
+    } catch (error) {
+      console.error("Error submitting marks:", error);
+      alert("Fail!");
+    }
+  };
+
+  return (
+    <div className={styles.mainContainer} style={{
+      padding: "2rem",
+      backgroundColor: "#f9f9f9",
+      borderRadius: "8px",
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+      position: "relative", 
+    }}>
+      {formInput ? (
+        <form onSubmit={submit} className={styles.form} style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          backgroundColor: "#fff",
+          padding: "1.5rem",
+          borderRadius: "6px",
+        }}>
+          <h2 className={styles.formTitle} style={{ marginBottom: "1rem", color: "#333" }}>
+            Enter Your Marks
+          </h2>
+          {subjects.map((subject) => (
+            <div key={subject} style={{ marginBottom: "1rem" }}>
+              <label className={styles.label} style={{ display: "block", marginBottom: "0.5rem" }}>
+                {subject}
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={marks[subject] || ""}
+                onChange={(e) => handleMarkChange(subject, e.target.value)}
+                className={styles.input}
+                placeholder="Enter your marks"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
               />
-            </a>
-            </>
-        )}
-        </div>
+            </div>
+          ))}
+          <button type="submit" style={{
+            padding: "0.6rem 1.2rem",
+            backgroundColor: "#000000",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}>
+            Submit Marks
+          </button>
+        </form>
+      ) : (
+        <>
+          <h1 className={styles.heading} style={{ marginBottom: "1.5rem", color: "#333" }}>
+            Matches
+          </h1>
+          {showMatches ? (
+            matches.length > 0 ? (
+              <ListView users={matches} />
+            ) : (
+              <p>No matches found.</p>
+            )
+          ) : (
+            <p>Loading matches...</p>
+          )}
+          <a href="/profile" className={styles.user} style={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            textDecoration: "none",
+            color: "#007bff",
+          }}>
+            <User className={styles.icon} style={{ width: "24px", height: "24px" }} />
+          </a>
         </>
-    );
+      )}
+    </div>
+  );
 }
 
 export default Dashboard;

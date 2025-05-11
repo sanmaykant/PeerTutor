@@ -12,9 +12,6 @@ export function useAuthformHook(userFields) {
             specialCharacters: hideStyle,
         });
 
-        useDebugValue(formData);
-        useDebugValue(passwordState);
-
         const handleFormUpdate = (e) => {
             const { name, value } = e.target;
             setFormData(prevState => ({

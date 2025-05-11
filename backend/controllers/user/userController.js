@@ -9,30 +9,53 @@ export const userSchema = Joi.object({
     university: Joi.string().allow(null, ""),
     strengths: Joi.array().items(Joi.string()),
     weaknesses: Joi.array().items(Joi.string()),
-})
+    marks: Joi.object().pattern(
+        Joi.string(),
+        Joi.number().min(0).max(100).allow(null)
+    ),
+});
 
 export const updateUser = async (req, res) => {
     try {
         const updateRequest = await userSchema.validateAsync(req.body);
-        const user = req.user;
+        const user = req.user; 
+
+        const marks = updateRequest.marks || user.marks; 
+
+        const strengths = [];
+        const weaknesses = [];
+
+        for (const subject in marks) {
+            const score = parseInt(marks[subject]);
+            if (score >= 80) {
+                strengths.push(subject); 
+            } else {
+                weaknesses.push(subject); 
+            }
+        }
+
+        const updatedUserData = {
+            username: updateRequest.username,
+            email: updateRequest.email,
+            university: updateRequest.university,
+            marks: marks,
+            strengths: strengths, 
+            weaknesses: weaknesses, 
+            age: updateRequest.age,
+            gender: updateRequest.gender,
+        };
 
         const result = await User.findOneAndUpdate(
-            { email: user.email },
-            {
-                username: updateRequest.username,
-                email: updateRequest.email,
-                university: updateRequest.university,
-                strengths: updateRequest.strengths,
-                weaknesses: updateRequest.weaknesses,
-            },
-            { new: true }
+            { email: user.email }, 
+            updatedUserData, 
+            { new: true } 
         );
 
+        return res.status(200).json({
+            message: "User metrics updated successfully.",
+            user: result, 
+        });
 
-        console.log(user);
-        await user.save();
-
-        return res.status(200).json({ message: "User metrics updated successfully.", user });
     } catch (error) {
         console.error("Update metrics error:", error);
         return res.status(500).json({ message: "Server error while updating metrics." });
@@ -41,27 +64,49 @@ export const updateUser = async (req, res) => {
 
 export const updateMetrics = async (req, res) => {
     try {
-        const { strengths, weaknesses } = req.body;
-        if (!Array.isArray(strengths) || !Array.isArray(weaknesses)) {
-            return res.status(400).json({ message: "Strengths and weaknesses should be arrays of strings." });
-        }
-        if (!strengths.every(item => typeof item === 'string') || !weaknesses.every(item => typeof item === 'string')) {
-            return res.status(400).json({ message: "All items in strengths and weaknesses should be strings." });
+        console.log("Received data:", req.body);
+
+        const { marks } = req.body;
+        const user = req.user; 
+
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized." }); 
         }
 
-        const user = req.user;
+        if (!marks || typeof marks !== 'object') {
+            return res.status(400).json({ message: "Marks should be an object." });
+        }
+
+        const strengths = [];
+        const weaknesses = [];
+
+        for (const subject in marks) {
+            const score = parseInt(marks[subject]);
+            if (score >= 80) {
+                strengths.push(subject);
+            } else {
+                weaknesses.push(subject);
+            }
+        }
 
         user.strengths = strengths;
         user.weaknesses = weaknesses;
+        user.marks = marks;
 
         await user.save();
 
-        return res.status(200).json({ message: "User metrics updated successfully.", user });
+        console.log("User updated:", user);
+
+        return res.status(200).json({
+            message: "User metrics updated successfully.",
+            user: user,     
+        });
     } catch (error) {
-        console.error("Update metrics error:", error);
+        console.error("Error updating metrics:", error);
         return res.status(500).json({ message: "Server error while updating metrics." });
     }
 };
+
 
 export const fetchMetrics = async (req, res) => {
     try {
@@ -93,7 +138,6 @@ export const fetchMatches = async(req, res) => {
         const userStrengths = user.strengths.map(s => s.trim());
         const userWeaknesses = user.weaknesses.map(w => w.trim());
 
-        // Fetch all users excluding the current user
         const allUsers = await User.find({ _id: { $ne: user._id } });
 
         const matches = [];

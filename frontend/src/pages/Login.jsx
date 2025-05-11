@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
-import { useAuthformHook } from "../hooks/AuthformHook"
-import { AuthContext } from "../providers/AuthProvider"
+import { useAuthformHook } from "../hooks/AuthformHook";
+import { AuthContext } from "../providers/AuthProvider";
 import { errorStyle, hideStyle } from "../utils/styles";
 import { login } from "../utils/apiControllers";
 import styles from "./styles/Auth.module.scss";
@@ -13,10 +13,10 @@ export default function Login() {
     const [errorMsgStyle, setErrorMsgStyle] = useState(hideStyle);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const useFormData = useAuthformHook({
+    const [formData, passwordState, handleFormUpdate, handlePasswordUpdate] = useAuthformHook({
         username: "",
         email: "",
-    });
+    })();
 
     useEffect(() => {
         setAuthStatus("logged_in");
@@ -24,13 +24,6 @@ export default function Login() {
             navigate("/dashboard");
         }
     }, [isSubmitted, navigate]);
-
-    const [
-        formData,
-        passwordState,
-        handleFormUpdate,
-        handlePasswordUpdate
-    ] = useFormData();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,8 +41,8 @@ export default function Login() {
         <div id={styles.main}>
             <div id={styles.container}>
                 <div id={styles.heading}>
-                <h1>Login</h1>
-                <p>Start learning and teaching with PeerTutor</p>
+                    <h1>Login</h1>
+                    <p>Start learning and teaching with PeerTutor</p>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <input

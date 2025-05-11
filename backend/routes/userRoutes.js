@@ -9,6 +9,7 @@ import {
 const router = Router();
 
 router.post("/metrics", (req, res, next) => {
+    console.log("POST /metrics hit");
     updateMetrics(req, res).catch(next);
 });
 router.get("/metrics", (req, res, next) => {

@@ -15,24 +15,30 @@ export const fetchMetrics = async () => {
     }
 }
 
-export const updateMetrics = async (strengths, weaknesses) => {
-    const response = await fetch(`${API_ROOT}/api/user/metrics`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            auth_token: localStorage.getItem("auth_token"),
-            strengths: strengths,
-            weaknesses: weaknesses,
-        })
-    });
+export const updateMetrics = async (marks) => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/user/metrics`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                auth_token: localStorage.getItem("auth_token"),
+                marks: marks,  // Send the marks directly
+            }),
+        });
 
-    const jsonResponse = await response.json();
-    if (!jsonResponse.success) {
-        console.log("success");
-    } else {
-        console.log("fail");
+        if (!response.ok) {
+            throw new Error("Failed to update metrics.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error in updateMetrics API:", error);
+        throw error;  // Rethrow error for the calling code to handle
     }
 };
+
 
 export const fetchMatches = async () => {
     try {
