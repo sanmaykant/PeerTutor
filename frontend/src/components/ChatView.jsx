@@ -69,7 +69,7 @@ const ChatView = ({ peer, chatHistory=[], onMessage=()=>{} }) => {
     };
 
     return (
-        <div className={styles.chatContainer} ref={containerRef}>
+        <div className={styles.chatContainer} ref={containerRef} onClick={(e) => { e.stopPropagation(); }}>
             <div className={styles.chatMessages}>
                 {messages.map((msg, index) => (
                     <div key={index} className={styles.chatMessage}>
@@ -85,8 +85,12 @@ const ChatView = ({ peer, chatHistory=[], onMessage=()=>{} }) => {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type a message..."
+                    onClick={(e) => { e.stopPropagation(); }}
                 />
-                <button className={styles.chatSend} onClick={sendMessage}>Send</button>
+                <button className={styles.chatSend} onClick={e => {
+                    e.stopPropagation();
+                    sendMessage();
+                }}>Send</button>
             </div>
         </div>
     );
