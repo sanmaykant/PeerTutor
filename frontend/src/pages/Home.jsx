@@ -1,37 +1,33 @@
-import { useNavigate } from "react-router"
-import styles from "./styles/Home.module.scss";
+import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router";
 
 export default function Home() {
     const navigate = useNavigate();
 
     return (
         <>
-            <div id={styles.container}>
-                <nav>
-                    <span id={styles.logo}>PeerTutor</span>
-                    <div id={styles.quickLinks}>
-                        <ul>
-                            <li><a href="">Home</a></li>
-                            <li><a href="/features">Features</a></li>
-                            <li><a href="/contact">Contact</a></li>
-                        </ul>
-                        <div id={styles.logo}></div>
-                    </div>
-                </nav>
-                <div id={styles.content}>
-                    <div id={styles.quote}>
-                        <span>Connect</span>
-                        <span>Learn</span>
-                        <span>Grow</span>
-                    </div>
-                    <div id={styles.cta}>
-                        <div>
-                        <button onClick={() => { navigate("/login"); }}>Get Started</button>
-                        <button onClick={() => { navigate("/signup"); }}>Become a Member</button>
-                        </div>
-                    </div>
+        <header className="sticky bg-white top-0 z-50 border-b border-gray-200 w-full px-32 py-4">
+            <div className="flex justify-between items-center">
+                <div>
+                    <span className="font-darker-grotesque font-bold text-3xl text-generic-green">
+                        PeerTutor<span className="text-generic-light-green">.</span>
+                    </span>
+                </div>
+                <div className="flex gap-20">
+                    <Button variant="navLink">Who we're for</Button>
+                    <Button variant="navLink">About Us</Button>
+                    <Button variant="navLink">Contact us</Button>
+                </div>
+                <div className="flex gap-4">
+                    <Button variant="navSecondary" size="nav" onClick={() => navigate("/login")}>
+                        Login
+                    </Button>
+                    <Button variant="navPrimary" size="nav" onClick={() => navigate("/signup")}>
+                        Signup
+                    </Button>
                 </div>
             </div>
+        </header>
         </>
-    )
+    );
 }
