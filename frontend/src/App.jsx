@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home"
 import Meet from "./pages/Meet";
 import Profile from "./pages/Profile";
+import WhoWereFor from "./pages/WhoWereFor";
 
 const router = createBrowserRouter([
     {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
         path: "/profile",
         element: <ProtectedRoute><Profile /></ProtectedRoute>,
     },
+    {
+        path: "/ourusers",
+        element: <WhoWereFor />
+    }
 ])
 
 function App() {

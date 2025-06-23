@@ -24,7 +24,7 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground shadow-xs hover:brightness-90 rounded-full cursor-pointer",
         navSecondary:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 rounded-full text-generic-green font-open-sans cursor-pointer",
-        navLink: "text-primary text-[12px] underline-offset-4 decoration-generic-green hover:underline text-generic-green cursor-pointer",
+        navLink: "text-primary text-[16px] underline-offset-4 decoration-generic-green hover:underline text-generic-green cursor-pointer",
 
       },
       size: {

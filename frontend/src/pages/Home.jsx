@@ -1,33 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router";
+import Navbar from "../components/Navbar";
 
 export default function Home() {
     const navigate = useNavigate();
 
     return (
         <>
-        <header className="sticky bg-white top-0 z-50 border-b border-gray-200 w-full px-32 py-4">
-            <div className="flex justify-between items-center">
-                <div>
-                    <span className="font-darker-grotesque font-bold text-3xl text-generic-green">
-                        PeerTutor<span className="text-generic-light-green">.</span>
-                    </span>
-                </div>
-                <div className="flex gap-20">
-                    <Button variant="navLink">Who we're for</Button>
-                    <Button variant="navLink">About Us</Button>
-                    <Button variant="navLink">Contact us</Button>
-                </div>
-                <div className="flex gap-4">
-                    <Button variant="navSecondary" size="nav" onClick={() => navigate("/login")}>
-                        Login
-                    </Button>
-                    <Button variant="navPrimary" size="nav" onClick={() => navigate("/signup")}>
-                        Signup
-                    </Button>
-                </div>
-            </div>
-        </header>
+        <Navbar />
 
         <main>
             <div className="w-full h-[50vh] max-w-150 mx-auto text-center flex flex-col justify-center">
@@ -40,7 +20,7 @@ export default function Home() {
                     Explore For Free
                 </Button>
             </div>
-            <div className="h-[50vh] w-full bg-gray-300" />
+            <div className="h-[calc(45vh-74px)] w-full rounded-t-[23px] bg-[linear-gradient(90.97deg,_#FE8261_0%,_#103E40_99.16%)] fixed bottom-0" />
         </main>
         </>
     );
