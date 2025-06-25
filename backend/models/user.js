@@ -24,5 +24,4 @@ const UserSchema = new Schema({
     rewards: {type: [String], default: []}
 });
 
-
 export default mongoose.model("User", UserSchema);

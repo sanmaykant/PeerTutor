@@ -129,15 +129,40 @@ export const fetchMetrics = async (req, res) => {
     }
 };
 
+export const uploadProfilePhoto = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded." });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        user.profileImage = base64Image;
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Profile photo uploaded successfully.",
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                profileImage: user.profileImage,
+            },
+        });
+    } catch (error) {
+        console.error("Error uploading profile photo:", error);
+        res.status(500).json({ message: "Server error while uploading photo." });
+    }
+};
+
 export const fetchMatches = async(req, res) => {
     try {
         const user = req.user;
-
-        console.log('Current User:', {
-            id: user._id,
-            strengths: user.strengths,
-            weaknesses: user.weaknesses
-        });
 
         const userStrengths = user.strengths.map(s => s.trim());
         const userWeaknesses = user.weaknesses.map(w => w.trim());
@@ -147,51 +172,30 @@ export const fetchMatches = async(req, res) => {
         const matches = [];
 
         for (const match of allUsers) {
-            console.log('Evaluating match:', {
-                id: match._id,
-                username: match.username,
-                strengths: match.strengths,
-                weaknesses: match.weaknesses
-            });
-
             const matchStrengths = match.strengths.map(s => s.trim());
             const matchWeaknesses = match.weaknesses.map(w => w.trim());
 
             const matchedStrengths = matchStrengths.filter(str => userWeaknesses.includes(str));
             const matchedWeaknesses = matchWeaknesses.filter(weak => userStrengths.includes(weak));
 
-            console.log('Matched Strengths:', matchedStrengths);
-            console.log('Matched Weaknesses:', matchedWeaknesses);
-
             if (matchedStrengths.length > 0 && matchedWeaknesses.length > 0) {
-                console.log('Match found:', {
-                    id: match._id,
-                    username: match.username,
-                    strengths: matchedStrengths,
-                    weaknesses: matchedWeaknesses
-                });
-
                 matches.push({
                     username: match.username,
                     email: match.email,
                     university: match.university,
-                    strengths: matchedStrengths,
-                    weaknesses: matchedWeaknesses
+                    strengths: match.strengths,
+                    weaknesses: match.weaknesses
                 });
-            } else {
-                console.log('No mutual benefit found.');
             }
-            console.log('---');
         }
 
-        console.log('Final Matches:', );
         res.json({
             success: true,
             matches: matches
         });
 
     } catch (error) {
-
+        res.status(500).json({ success: false, message: "Server error while fetching matches." });
     }
 };
 
@@ -302,5 +306,23 @@ export const fetchRewards = (req, res) => {
             message: "Server error in fetching rewards",
             success: false,
         })
+    }
+};
+
+// Delete user by username
+export const deleteUser = async (req, res) => {
+    try {
+        const { username } = req.params;
+        if (!username) {
+            return res.status(400).json({ message: "Username is required." });
+        }
+        const deleted = await User.findOneAndDelete({ username });
+        if (!deleted) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        return res.status(200).json({ message: `User ${username} deleted successfully.` });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return res.status(500).json({ message: "Server error while deleting user." });
     }
 };
