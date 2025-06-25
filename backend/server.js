@@ -18,7 +18,7 @@ const io = new Server({
   }
 });
 const HTTP_PORT = process.env.HTTP_PORT || 5000;
-const SOCKET_PORT = Number(process.env.SOCKET_PORT) || 5001;
+const SOCKET_PORT = Number(process.env.SOCKET_PORT) || 5002;
 
 app.use(cors());
 app.use(express.json());

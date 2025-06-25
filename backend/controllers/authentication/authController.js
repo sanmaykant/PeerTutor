@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../../models/user.js";
-import { generateToken, verifyToken } from "../../utils/jwt.js";
+import { generateToken, verifyToken as verify } from "../../utils/jwt.js";
 import { signupSchema, loginSchema } from "./validate.js"
 
 const MSG = {
@@ -173,6 +173,21 @@ export const login = async (req, res) => {
     }
 };
 
+export const verifyToken = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) {
+            return res.status(401).json({ success: false, message: "No token provided" });
+        }
+        
+        const decoded = await verify(token);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ success: false, message: "Invalid token" });
+    }
+};
+
 export const logout = (req, res) => {
     res.clearCookie("auth_token");
     return res.status(200).json({ message: "Logged out successfully", success: true });
@@ -198,7 +213,7 @@ export const authenticate = async (req, res, next) => {
         return notAuthorized(res);
     }
 
-    const decoded = verifyToken(token);
+    const decoded = verify(token);
     if (!decoded) {
         return notAuthorized(res);
     }

@@ -1,41 +1,114 @@
-import  AuthProvider, { ProtectedRoute } from "./providers/AuthProvider";
+import { lazy, Suspense } from "react";
+import AuthProvider, { ProtectedRoute } from "./providers/AuthProvider";
 import { createBrowserRouter, RouterProvider } from "react-router";
+import "./index.css";
 
-import Dashboard from "./pages/Dashboard"
-import Signup from "./pages/Signup";
-import Login from "./pages/Login";
-import Home from "./pages/Home"
-import Meet from "./pages/Meet";
-import Profile from "./pages/Profile";
+// Lazy load components for better performance
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Login = lazy(() => import("./pages/Login"));
+const Home = lazy(() => import("./pages/Home"));
+const Meet = lazy(() => import("./pages/Meet"));
+const Profile = lazy(() => import("./pages/Profile"));
+const MentorProfile = lazy(() => import("./pages/MentorProfile"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 import WhoWereFor from "./pages/WhoWereFor";
 import About from "./pages/About";
 import Calendar from "./pages/Calendar";
 
 
+// Loader component
+const Loader = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    width: '100vw',
+    background: 'rgba(255,255,255,0.7)',
+    zIndex: 9999,
+    position: 'fixed',
+    top: 0,
+    left: 0
+  }}>
+    <div className="loader"></div>
+  </div>
+);
+
 const router = createBrowserRouter([
     {
         path: "/",
-        "element": <Home />,
+        "element": (
+          <Suspense fallback={<Loader />}>
+            <Home />
+          </Suspense>
+        ),
     },
     {
         path: "/dashboard",
-        "element": <ProtectedRoute><Dashboard /></ProtectedRoute>,
+        "element": (
+          <ProtectedRoute>
+            <Suspense fallback={<Loader />}>
+              <Dashboard />
+            </Suspense>
+          </ProtectedRoute>
+        ),
     },
     {
         path: "/signup",
-        "element": <Signup />,
+        "element": (
+          <Suspense fallback={<Loader />}>
+            <Signup />
+          </Suspense>
+        ),
     },
     {
         path: "/login",
-        "element": <Login />,
+        "element": (
+          <Suspense fallback={<Loader />}>
+            <Login />
+          </Suspense>
+        ),
     },
     {
         path: "/meet/:peer",
-        "element": <ProtectedRoute><Meet /></ProtectedRoute>,
+        "element": (
+          <ProtectedRoute>
+            <Suspense fallback={<Loader />}>
+              <Meet />
+            </Suspense>
+          </ProtectedRoute>
+        ),
     },
     {
         path: "/profile",
-        element: <ProtectedRoute><Profile /></ProtectedRoute>,
+        element: (
+          <ProtectedRoute>
+            <Suspense fallback={<Loader />}>
+              <Profile />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/profile/:username",
+        element: (
+          <ProtectedRoute>
+            <Suspense fallback={<Loader />}>
+              <MentorProfile />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/leaderboard",
+        element: (
+          <ProtectedRoute>
+            <Suspense fallback={<Loader />}>
+              <Leaderboard />
+            </Suspense>
+          </ProtectedRoute>
+        ),
     },
     {
         path: "/ourusers",

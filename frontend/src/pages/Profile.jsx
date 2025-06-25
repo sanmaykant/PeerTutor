@@ -1,189 +1,196 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
+import { motion } from "framer-motion";
 import styles from "./styles/Profile.module.scss";
 import { AuthContext } from "../providers/AuthProvider";
 
 function Profile() {
-    const { user } = useContext(AuthContext);
-    const [editable, setEditable] = useState(false);
-      const subjects = ["Operating System", "Computer Architecture", "Database Management", "Software Engineering", "Computer Networks"];
+  const { user } = useContext(AuthContext);
+  const [editable, setEditable] = useState(false);
 
-    const [formData, setFormData] = useState({
-      username: user.username || "",
-      email: user.email || "",
-      age: user.age || "",
-      gender: user.gender || "",
-      university: user.university || "",
-      marks: subjects.reduce((acc, subject) => {
-        acc[subject] = user?.marks?.[subject] || ""; 
-        return acc;
-      }, {}),
-    });
+  const subjects = [
+    "Operating System",
+    "Computer Architecture",
+    "Database Management",
+    "Software Engineering",
+    "Computer Networks",
+  ];
 
-    const handleFormUpdate = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
+  const [formData, setFormData] = useState({
+    username: user.username || "",
+    email: user.email || "",
+    age: user.age || "",
+    gender: user.gender || "",
+    university: user.university || "",
+    profileImage: user.profileImage || "",
+    marks: subjects.reduce((acc, subject) => {
+      acc[subject] = user?.marks?.[subject] || "";
+      return acc;
+    }, {}),
+  });
 
-    const handleMarkChange = (subject, value) => {
-        const numValue = parseInt(value);
-        console.log(numValue);
-        if (value === "" || (!isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
-            setFormData(prevState => ({
-                ...prevState,
-                marks: {
-                    ...prevState.marks,
-                    [subject]: value
-                }
-            }));
-        }
-    };
+  const handleFormUpdate = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleEdit = () => {
-        console.log("Edit button clicked, editable:", editable);
-        setEditable(true);
-        console.log("After setEditable, editable:", editable);
-    };
+  const handleMarkChange = (subject, value) => {
+    const numValue = parseInt(value);
+    if (value === "" || (!isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
+      setFormData((prev) => ({
+        ...prev,
+        marks: { ...prev.marks, [subject]: value },
+      }));
+    }
+  };
 
-    const handleSave = () => {
-        setEditable(false);
-        const payload = {
-            username: formData.username,
-            email: formData.email,
-            age: formData.age,
-            gender: formData.gender,
-            university: formData.university,
-            marks: formData.marks,
-        };
-        console.log("Sending Payload:", payload);  
-    
-        (async () => {
-            try {
-                const response = await fetch("http://localhost:5000/api/user/update", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        auth_token: localStorage.getItem("auth_token"),
-                    },
-                    body: JSON.stringify(payload),
-                });
-    
-                const jsonResponse = await response.json();
-                console.log(jsonResponse);
-            } catch (e) {
-                console.error(e);
-            }
-        })();
-    };
-    return (
-        <div className={styles.mainContainer}>
-            <div className={styles.profileContainer}>
-                <h2 className={styles.profileTitle}>My Profile</h2>
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, profileImage: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-                {/* Username */}
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Username</label>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleFormUpdate}
-                        disabled={!editable}
-                    />
-                </div>
+  const handleEdit = () => setEditable(true);
 
-                {/* Email */}
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Email</label>
-                    <input
-                        className={styles.input}
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleFormUpdate}
-                        disabled={!editable}
-                    />
-                </div>
+  const handleSave = () => {
+    setEditable(false);
+    const payload = { ...formData };
 
-                {/* Age */}
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Age</label>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        name="age"
-                        value={formData.age}
-                        onChange={handleFormUpdate}
-                        disabled={!editable}
-                    />
-                </div>
+    fetch("http://localhost:5000/api/user/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        auth_token: localStorage.getItem("auth_token"),
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then(console.log)
+      .catch(console.error);
+  };
 
-                {/* Gender */}
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Gender</label>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleFormUpdate}
-                        disabled={!editable}
-                    />
-                </div>
-
-                {/* University */}
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>University</label>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        name="university"
-                        value={formData.university}
-                        onChange={handleFormUpdate}
-                        disabled={!editable}
-                    />
-                </div>
-
-                {/* Subject Marks */}
-                <div className={styles.fieldGroup}>
-                    <label className={styles.label}>Subject Marks</label>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        {subjects.map((subject) => (
-                            <div key={subject} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <label style={{ minWidth: "150px", color: "#000" }}>{subject}:</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={formData.marks?.[subject] || ""}
-                                    onChange={(e) => handleMarkChange(subject, e.target.value)}
-                                    disabled={!editable}
-                                    style={{
-                                        padding: "0.5rem",
-                                        borderRadius: "4px",
-                                        border: "1px solid #ccc",
-                                        width: "100px",
-                                        backgroundColor: editable ? "white" : "#f5f5f5"
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className={styles.buttonGroup}>
-                    {editable ? (
-                        <button className={styles.saveButton} onClick={handleSave}>Save Profile</button>
-                    ) : (
-                        <button className={styles.editButton} onClick={handleEdit}>Edit Profile</button>
-                    )}
-                </div>
-            </div>
+  return (
+    <motion.div
+      className={styles.animatedBackground}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className={styles.profileCard}>
+        <div className={styles.avatarSection}>
+          <div className={styles.avatarContainer}>
+            {formData.profileImage ? (
+              <img 
+                src={formData.profileImage} 
+                alt="Profile" 
+                className={styles.avatar}
+                style={{ 
+                  width: '120px', 
+                  height: '120px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover',
+                  border: '3px solid #6366f1'
+                }} 
+              />
+            ) : (
+              <div className={styles.avatar} style={{ 
+                width: '120px', 
+                height: '120px', 
+                borderRadius: '50%', 
+                background: '#6366f1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '2rem',
+                fontWeight: 'bold'
+              }}>
+                {formData.username ? formData.username.charAt(0).toUpperCase() : 'U'}
+              </div>
+            )}
+            {editable && (
+              <label className={styles.avatarUpload} style={{
+                position: 'absolute',
+                bottom: '0',
+                right: '0',
+                background: '#6366f1',
+                color: 'white',
+                borderRadius: '50%',
+                width: '35px',
+                height: '35px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.2rem',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                transition: 'transform 0.2s'
+              }}>
+                +
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            )}
+          </div>
+          <h2 className={styles.username}>{formData.username}</h2>
+          <p className={styles.email}>{formData.email}</p>
         </div>
-    );
+
+        <div className={styles.infoSection}>
+          {["age", "gender", "university"].map((field) => (
+            <div className={styles.infoGroup} key={field}>
+              <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+              <input
+                name={field}
+                value={formData[field]}
+                onChange={handleFormUpdate}
+                disabled={!editable}
+                style={{ background: editable ? '#111' : '', color: editable ? '#fff' : '', transition: 'background 0.2s, color 0.2s' }}
+              />
+            </div>
+          ))}
+
+          <div className={styles.marksSection}>
+            <h4>Subject Marks</h4>
+            {subjects.map((subject) => (
+              <div className={styles.markItem} key={subject}>
+                <label>{subject}</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.marks?.[subject] || ""}
+                  onChange={(e) => handleMarkChange(subject, e.target.value)}
+                  disabled={!editable}
+                  style={{ background: editable ? '#111' : '', color: editable ? '#fff' : '', transition: 'background 0.2s, color 0.2s' }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.buttonGroup}>
+          {editable ? (
+            <button className={styles.saveButton} onClick={handleSave}>
+              Save
+            </button>
+          ) : (
+            <button className={styles.editButton} onClick={handleEdit}>
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 export default Profile;
