@@ -8,6 +8,7 @@ import Home from "./pages/Home"
 import Meet from "./pages/Meet";
 import Profile from "./pages/Profile";
 import WhoWereFor from "./pages/WhoWereFor";
+import About from "./pages/About";
 
 const router = createBrowserRouter([
     {
@@ -37,7 +38,11 @@ const router = createBrowserRouter([
     {
         path: "/ourusers",
         element: <WhoWereFor />
-    }
+    },
+    {
+        path: "/about",
+        element: <About />
+    },
 ])
 
 function App() {
