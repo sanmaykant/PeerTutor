@@ -33,6 +33,7 @@ const buttonVariants = cva(
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
         icon: "size-9",
         nav: "h-10 w-24 text-[12px] px-6 has-[>svg]:px-4",
+        contact: "h-[58px] w-[133px] text-[18px] px-6 has-[>svg]:px-4",
       },
     },
     defaultVariants: {
