@@ -16,9 +16,9 @@ function ContactUs() {
             <DialogTrigger asChild>
             <Button variant="navLink">Contact Us</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
                 <DialogHeader>
-                <DialogTitle className="font-hanken-grotesque font-bold text-[32px] text-[#103E40] text-center mt-[16px]">Contact Us</DialogTitle>
+                    <DialogTitle className="font-hanken-grotesque font-bold text-[32px] text-[#103E40] text-center mt-[16px]">Contact Us</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 px-[40px]">
                     <div className="grid gap-[22px]">
