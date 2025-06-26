@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router";
+import ContactUs from "@/components/ContactUs";
 
 function Navbar() {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ function Navbar() {
                    <div className="flex gap-20">
                        <Button variant="navLink" onClick={() => navigate("/ourusers")}>Who we're for</Button>
                        <Button variant="navLink" onClick={() => navigate("/about")}>About Us</Button>
-                       <Button variant="navLink">Contact us</Button>
+                       <ContactUs />
                    </div>
                    <div className="flex gap-4">
                        <Button variant="navSecondary" size="nav" onClick={() => navigate("/login")}>
