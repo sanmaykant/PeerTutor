@@ -10,7 +10,7 @@ function Navbar() {
            <header className="sticky bg-white top-0 z-50 border-b border-gray-200 w-full px-32 py-4">
                <div className="flex justify-between items-center">
                    <div>
-                       <span className="font-darker-grotesque font-bold text-3xl text-generic-green">
+                       <span className="font-darker-grotesque font-bold text-3xl text-generic-green cursor-pointer" onClick={() => navigate("/")}>
                            PeerTutor<span className="text-generic-light-green">.</span>
                        </span>
                    </div>
