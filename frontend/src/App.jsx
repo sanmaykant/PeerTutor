@@ -9,7 +9,7 @@ import Meet from "./pages/Meet";
 import Profile from "./pages/Profile";
 import WhoWereFor from "./pages/WhoWereFor";
 import About from "./pages/About";
-import ContactUs from "./components/ContactUs";
+import Calendar from "./pages/Calendar";
 
 
 const router = createBrowserRouter([
@@ -44,6 +44,10 @@ const router = createBrowserRouter([
     {
         path: "/about",
         element: <About />
+    },
+    {
+        path: "/calendar",
+        element: <Calendar />
     },
 ])
 
