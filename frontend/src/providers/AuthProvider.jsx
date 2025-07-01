@@ -9,6 +9,15 @@ import { fetchMetrics } from "../utils/apiControllers.js"
 
 export const AuthContext = createContext("loading");
 
+// Custom hook to use auth context
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (context === "loading") {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
+};
+
 export default function AuthProvider({ children }) {
     const [authStatus, setAuthStatus] = useState("loading");
     const [user, setUser] = useState();
@@ -41,17 +50,21 @@ export default function AuthProvider({ children }) {
             if (!jsonResponse.success) {
                 setAuthStatus("unauthenticated");
             } else {
-                const metrics = await fetchMetrics();
-                setMetrics({
-                    strengths: metrics.strengths,
-                    weaknesses: metrics.weaknesses,
-                });
                 setAuthStatus("authenticated");
+                const metrics = await fetchMetrics();
+                if (metrics) {
+                    setMetrics({
+                        strengths: metrics.strengths,
+                        weaknesses: metrics.weaknesses,
+                    });
+                }
             }
         };
 
-        authenticate();
-    }, [authStatus]);
+        if (authStatus === "loading") {
+            authenticate();
+        }
+    }, []);
 
     return (
         <AuthContext.Provider value={{ authStatus, setAuthStatus, user, metrics }}>

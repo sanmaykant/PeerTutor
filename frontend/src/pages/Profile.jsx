@@ -1,11 +1,20 @@
-import React, { useState, useContext } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./styles/Profile.module.scss";
 import { AuthContext } from "../providers/AuthProvider";
+import Cropper from 'react-easy-crop';
+import BackButton from '../components/BackButton';
+import { updateUser, uploadProfilePhoto } from '../utils/apiControllers';
 
-function Profile() {
-  const { user } = useContext(AuthContext);
-  const [editable, setEditable] = useState(false);
+const Profile = () => {
+  const { user, setUser } = useContext(AuthContext);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [image, setImage] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   const subjects = [
     "Operating System",
@@ -15,18 +24,26 @@ function Profile() {
     "Computer Networks",
   ];
 
-  const [formData, setFormData] = useState({
-    username: user.username || "",
-    email: user.email || "",
-    age: user.age || "",
-    gender: user.gender || "",
-    university: user.university || "",
-    profileImage: user.profileImage || "",
-    marks: subjects.reduce((acc, subject) => {
-      acc[subject] = user?.marks?.[subject] || "";
-      return acc;
-    }, {}),
-  });
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || "",
+        email: user.email || "",
+        age: user.age || "",
+        gender: user.gender || "",
+        university: user.university || "",
+        profileImage: user.profileImage || "",
+        marks: subjects.reduce((acc, subject) => {
+          acc[subject] = user?.marks?.[subject] || "";
+          return acc;
+        }, {}),
+      });
+    }
+  }, [user]);
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
 
   const handleFormUpdate = (e) => {
     const { name, value } = e.target;
@@ -43,100 +60,55 @@ function Profile() {
     }
   };
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, profileImage: reader.result }));
-      };
-      reader.readAsDataURL(file);
+  const handleSave = async () => {
+    setIsEditing(false);
+    try {
+      const updatedUser = await updateUser(formData);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Failed to update profile:', error);
     }
   };
 
-  const handleEdit = () => setEditable(true);
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const handleSave = () => {
-    setEditable(false);
-    const payload = { ...formData };
-
-    fetch("http://localhost:5000/api/user/update", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        auth_token: localStorage.getItem("auth_token"),
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then(console.log)
-      .catch(console.error);
+    try {
+      const updatedUser = await uploadProfilePhoto(file);
+      setFormData(prev => ({ ...prev, profileImage: updatedUser.profileImage }));
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Failed to upload profile photo:', error);
+    }
   };
 
   return (
-    <motion.div
-      className={styles.animatedBackground}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
+    <div className={`${styles.profileContainer} ${darkMode ? styles.darkMode : ''}`}>
+      <BackButton />
+      
+      <motion.button
+        onClick={() => setDarkMode(!darkMode)}
+        className={styles.darkModeToggle}
+        whileTap={{ scale: 0.9 }}
+      >
+        {darkMode ? '☀️' : '🌙'}
+      </motion.button>
+      
       <div className={styles.profileCard}>
         <div className={styles.avatarSection}>
           <div className={styles.avatarContainer}>
             {formData.profileImage ? (
-              <img 
-                src={formData.profileImage} 
-                alt="Profile" 
-                className={styles.avatar}
-                style={{ 
-                  width: '120px', 
-                  height: '120px', 
-                  borderRadius: '50%', 
-                  objectFit: 'cover',
-                  border: '3px solid #6366f1'
-                }} 
-              />
+              <img src={formData.profileImage} alt="Profile" className={styles.avatar} />
             ) : (
-              <div className={styles.avatar} style={{ 
-                width: '120px', 
-                height: '120px', 
-                borderRadius: '50%', 
-                background: '#6366f1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '2rem',
-                fontWeight: 'bold'
-              }}>
+              <div className={styles.avatarPlaceholder}>
                 {formData.username ? formData.username.charAt(0).toUpperCase() : 'U'}
               </div>
             )}
-            {editable && (
-              <label className={styles.avatarUpload} style={{
-                position: 'absolute',
-                bottom: '0',
-                right: '0',
-                background: '#6366f1',
-                color: 'white',
-                borderRadius: '50%',
-                width: '35px',
-                height: '35px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: '1.2rem',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                transition: 'transform 0.2s'
-              }}>
+            {isEditing && (
+              <label className={styles.avatarUpload}>
                 +
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  style={{ display: 'none' }}
-                />
+                <input type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
               </label>
             )}
           </div>
@@ -148,49 +120,31 @@ function Profile() {
           {["age", "gender", "university"].map((field) => (
             <div className={styles.infoGroup} key={field}>
               <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-              <input
-                name={field}
-                value={formData[field]}
-                onChange={handleFormUpdate}
-                disabled={!editable}
-                style={{ background: editable ? '#111' : '', color: editable ? '#fff' : '', transition: 'background 0.2s, color 0.2s' }}
-              />
+              <input name={field} value={formData[field]} onChange={handleFormUpdate} disabled={!isEditing} />
             </div>
           ))}
+        </div>
 
-          <div className={styles.marksSection}>
-            <h4>Subject Marks</h4>
-            {subjects.map((subject) => (
-              <div className={styles.markItem} key={subject}>
-                <label>{subject}</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.marks?.[subject] || ""}
-                  onChange={(e) => handleMarkChange(subject, e.target.value)}
-                  disabled={!editable}
-                  style={{ background: editable ? '#111' : '', color: editable ? '#fff' : '', transition: 'background 0.2s, color 0.2s' }}
-                />
-              </div>
-            ))}
-          </div>
+        <div className={styles.marksSection}>
+          <h4>Subject Marks</h4>
+          {subjects.map((subject) => (
+            <div className={styles.markItem} key={subject}>
+              <label>{subject}</label>
+              <input type="number" min="0" max="100" value={formData.marks?.[subject] || ""} onChange={(e) => handleMarkChange(subject, e.target.value)} disabled={!isEditing} />
+            </div>
+          ))}
         </div>
 
         <div className={styles.buttonGroup}>
-          {editable ? (
-            <button className={styles.saveButton} onClick={handleSave}>
-              Save
-            </button>
+          {isEditing ? (
+            <button onClick={handleSave} className={styles.saveButton}>Save</button>
           ) : (
-            <button className={styles.editButton} onClick={handleEdit}>
-              Edit
-            </button>
+            <button onClick={() => setIsEditing(true)} className={styles.editButton}>Edit</button>
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
-}
+};
 
 export default Profile;
