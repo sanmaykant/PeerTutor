@@ -110,7 +110,7 @@ cd ../client
 npm run dev
 ```
 
-> The frontend will typically run on [http://localhost:3000](http://localhost:3000)  
+> The frontend will typically run on [http://localhost:5173](http://localhost:5173)  
 > The backend will typically run on [http://localhost:5000](http://localhost:5000)
 
 ---
