@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 import { io } from "socket.io-client";
 import styles from "./styles/ChatView.module.scss";
 import { AuthContext } from "../providers/AuthProvider.jsx"
+import { trackChatActivity } from "../utils/apiControllers.js";
 
 const socket = io("http://localhost:5001");
 
@@ -45,7 +46,7 @@ const ChatView = ({ peer, chatHistory=[], onMessage=()=>{} }) => {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, inView]);
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (input.trim() === "") return;
 
         const message = {
@@ -59,6 +60,13 @@ const ChatView = ({ peer, chatHistory=[], onMessage=()=>{} }) => {
         setMessages(prev => [...prev, message]);
         onMessage(message);
         setInput("");
+
+        // Track chat activity for gamification
+        try {
+            await trackChatActivity(1);
+        } catch (error) {
+            console.error('Error tracking chat activity:', error);
+        }
     };
 
     const handleKeyDown = (e) => {

@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Trophy, Star } from 'lucide-react';
-import { AuthContext } from "../providers/AuthProvider.jsx";
-import { useContext } from 'react';
-
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../providers/AuthProvider';
 import {
   getLeaderboard,
   getUserGamification,
@@ -10,9 +8,11 @@ import {
   getAvailableRewards,
 } from '../utils/apiControllers';
 import styles from './styles/Leaderboard.module.scss';
+import { Trophy, Star, Gift, Shield } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 const Leaderboard = () => {
-const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState([]);
   const [userData, setUserData] = useState(null);
   const [availableRewards, setAvailableRewards] = useState([]);
@@ -21,56 +21,54 @@ const { user } = useContext(AuthContext);
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [leaderboardRes, userRes, rewardsRes] = await Promise.all([
-          getLeaderboard(),
-          getUserGamification(),
-          getAvailableRewards(),
-        ]);
-
-        if (leaderboardRes.success) setLeaderboard(leaderboardRes.leaderboard);
-        if (userRes.success) setUserData(userRes.data);
-        if (rewardsRes.success) setAvailableRewards(rewardsRes.availableRewards);
-      } catch (error) {
-        console.error('Fallback to demo data due to fetch error:', error);
-        fallbackData();
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    fetchData();
+    // Check for system dark mode preference
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     setDarkMode(mediaQuery.matches);
-    const handler = (e) => setDarkMode(e.matches);
-    mediaQuery.addEventListener('change', handler);
-
-    fetchData();
-
-    return () => mediaQuery.removeEventListener('change', handler);
+    
+    const handleChange = (e) => setDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const fallbackData = () => {
-    setLeaderboard([
-      { rank: 1, username: 'Alice', points: 1250, level: 15, achievements: 8, experience: 1500 },
-      { rank: 2, username: 'Bob', points: 1100, level: 12, achievements: 6, experience: 1200 },
-      { rank: 3, username: 'Charlie', points: 950, level: 10, achievements: 5, experience: 1000 },
-    ]);
-    setUserData({
-      username: user?.username || 'User',
-      points: 1250,
-      level: 15,
-      experience: 1450,
-      expForNextLevel: 50,
-      progressToNextLevel: 75,
-      achievements: [
-        { name: 'First Session', description: 'Complete your first session', icon: '🎯', points: 50 },
-        { name: 'Hour Master', description: 'Study for 1 hour', icon: '⏰', points: 75 },
-      ],
-    });
-    setAvailableRewards([
-      { name: 'Session Master', description: 'Complete 5 sessions', icon: '📚', points: 200, _id: 'demo-id-1' },
-    ]);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [leaderboardRes, userRes, rewardsRes] = await Promise.all([
+        getLeaderboard(),
+        getUserGamification(),
+        getAvailableRewards(),
+      ]);
+
+      if (leaderboardRes.success) setLeaderboard(leaderboardRes.leaderboard);
+      if (userRes.success) setUserData(userRes.data);
+      if (rewardsRes.success) setAvailableRewards(rewardsRes.availableRewards);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLeaderboard([
+        { rank: 1, username: 'Alice', points: 1250, level: 15, achievements: 8 },
+        { rank: 2, username: 'Bob', points: 1100, level: 12, achievements: 6 },
+        { rank: 3, username: 'Charlie', points: 950, level: 10, achievements: 5 },
+      ]);
+      setUserData({
+        username: user?.username || 'User',
+        points: 1250,
+        level: 15,
+        experience: 1450,
+        expForNextLevel: 50,
+        progressToNextLevel: 75,
+        achievements: [
+          { name: 'First Session', description: 'Complete your first session', icon: '🎯', points: 50 },
+          { name: 'Hour Master', description: 'Study for 1 hour', icon: '⏰', points: 75 },
+        ],
+      });
+      setAvailableRewards([
+        { name: 'Session Master', description: 'Complete 5 sessions', icon: '📚', points: 200 },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClaimReward = async (reward) => {
@@ -79,14 +77,35 @@ const { user } = useContext(AuthContext);
       if (res.success) {
         const userRes = await getUserGamification();
         if (userRes.success) setUserData(userRes.data);
-        setAvailableRewards(prev => prev.filter(r => r.name !== reward.name));
         alert(`Claimed ${reward.name} for ${reward.points} points!`);
+        setAvailableRewards((prev) => prev.filter((r) => r.name !== reward.name));
       }
     } catch (error) {
-      console.error('Reward claim failed, fallback:', error);
-      setAvailableRewards(prev => prev.filter(r => r.name !== reward.name));
+      console.error('Error claiming reward:', error);
       alert(`Claimed ${reward.name} for ${reward.points} points!`);
+      setAvailableRewards((prev) => prev.filter((r) => r.name !== reward.name));
     }
+  };
+
+  const getRankIcon = (rank) => {
+    switch (rank) {
+      case 1:
+        return '🥇';
+      case 2:
+        return '🥈';
+      case 3:
+        return '🥉';
+      default:
+        return `#${rank}`;
+    }
+  };
+
+  const getLevelColor = (level) => {
+    if (level >= 20) return styles.purple;
+    if (level >= 15) return styles.red;
+    if (level >= 10) return styles.orange;
+    if (level >= 5) return styles.yellow;
+    return styles.green;
   };
 
   if (loading) {
@@ -99,115 +118,144 @@ const { user } = useContext(AuthContext);
 
   return (
     <div className={styles.leaderboardPage}>
+      <BackButton />
       <div className={`${styles.container} ${darkMode ? styles.darkMode : ''}`}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>🏆 Leaderboard</h1>
-          <p className={styles.subtitle}>Compete with your peers and earn rewards!</p>
-        </header>
+        <div className={styles.header}>
+          <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className={styles.title}>
+            🏆 Leaderboard
+          </motion.h1>
+          <p className={styles.subtitle}>Compete with your peers and earn exciting rewards!</p>
+        </div>
 
         {userData && (
-          <section className={styles.userCard}>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className={styles.userCard}>
             <div className={styles.userInfo}>
-              <div className={styles.avatar}>{userData.username.charAt(0).toUpperCase()}</div>
+              <div className={styles.avatar}>{userData?.username?.charAt(0).toUpperCase()}</div>
               <div>
                 <h3 className={styles.username}>{userData.username}</h3>
-                <p className={styles.userStats}>Level {userData.level} • {userData.points} pts</p>
+                <p className={styles.userStats}>Level {userData.level} • {userData.points} points</p>
               </div>
             </div>
+            <div className={styles.userPoints}>{userData.points} pts</div>
             <div className={styles.progressWrap}>
               <div className={styles.progressBarBg}>
-                <div
-                  className={styles.progressBarFill}
-                  style={{ width: `${userData.progressToNextLevel || 0}%` }}
-                />
+                <motion.div className={styles.progressBarFill} animate={{ width: `${userData?.progressToNextLevel || 0}%` }} />
               </div>
               <p className={styles.xpInfo}>{userData.expForNextLevel} XP to next level</p>
             </div>
-          </section>
+          </motion.div>
         )}
 
         <div className={styles.tabButtons}>
           {['leaderboard', 'achievements', 'rewards'].map((tab) => (
-            <button
+            <motion.button
               key={tab}
-              className={`${styles.tabButton} ${activeTab === tab ? styles.active : ''}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab)}
+              className={`${styles.tabButton} ${activeTab === tab ? styles.active : ''}`}
             >
-              {tab === 'leaderboard' ? '🏆 Leaderboard' : tab === 'achievements' ? '🎖 Achievements' : '🎁 Rewards'}
-            </button>
+              {tab === 'leaderboard' ? '🏆 Leaderboard' : tab === 'achievements' ? '🎖️ Achievements' : '🎁 Rewards'}
+            </motion.button>
           ))}
         </div>
 
-        <section className={styles.card}>
+        <AnimatePresence mode="wait">
           {activeTab === 'leaderboard' && (
-            <div className={styles.leaderboardList}>
-              {leaderboard.map((user, index) => (
-                <div
-                  key={user.username}
-                  className={`${styles.leaderboardRow} ${user.username === userData?.username ? styles.currentUser : ''}`}
-                >
-                  <div className={styles.rank}><span>{user.rank}</span></div>
-                  <div className={styles.player}>
-                    <div className={styles.avatar}>{user.username.charAt(0).toUpperCase()}</div>
-                    <div className={styles.playerInfo}>
-                      <span className={styles.username}>{user.username}</span>
-                      <div className={styles.level}>
-                        <span>Level {user.level}</span>
-                        <div className={styles.progressBar}>
-                          <div
-                            className={styles.progress}
-                            style={{
-                              width: `${(user.experience / ((user.level || 1) * 100)) * 100}%`,
-                            }}
-                          />
+            <motion.div key="leaderboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.card}>
+              <div className={styles.leaderboardList}>
+                {leaderboard.map((user, index) => (
+                  <motion.div
+                    key={user.username}
+                    className={`${styles.leaderboardRow} ${
+                      index === 0 ? styles.gold : ''
+                    } ${
+                      index === 1 ? styles.silver : ''
+                    } ${
+                      index === 2 ? styles.bronze : ''
+                    } ${
+                      user.username === userData?.username ? styles.currentUser : ''
+                    }`}
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    layout
+                  >
+                    <div className={styles.rank}>
+                      <span>{user.rank}</span>
+                    </div>
+                    <div className={styles.player}>
+                      <div className={styles.avatar}>
+                        {user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div className={styles.playerInfo}>
+                        <span className={styles.username}>{user.username}</span>
+                        <div className={styles.level}>
+                          <span>Level {user.level}</span>
+                          <div className={styles.progressBar}>
+                            <motion.div 
+                              className={styles.progress} 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(user.experience / (user.level * 100 || 1)) * 100}%` }}
+                              transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className={styles.stats}>
-                    <div className={styles.stat}><Trophy size={16} /> {user.points}</div>
-                    <div className={styles.stat}><Star size={16} /> {user.achievements}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    <div className={styles.stats}>
+                      <div className={styles.stat}>
+                        <Trophy size={18} />
+                        <span>{user.totalScore || user.points}</span>
+                      </div>
+                      <div className={styles.stat}>
+                        <Star size={18} />
+                        <span>{user.achievements}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           )}
 
           {activeTab === 'achievements' && (
-            <div className={styles.achievementGrid}>
+            <motion.div key="achievements" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.card}>
               {userData.achievements.map((ach, i) => (
                 <div key={`${ach.name}-${i}`} className={styles.achievementCard}>
                   <div className={styles.achievementIcon}>{ach.icon}</div>
                   <h3>{ach.name}</h3>
                   <p>{ach.description}</p>
-                  <span>+{ach.points} pts</span>
+                  <span>+{ach.points} points</span>
                 </div>
               ))}
-            </div>
+            </motion.div>
           )}
 
           {activeTab === 'rewards' && (
-            <div className={styles.rewardGrid}>
-              {availableRewards.length > 0 ? (
+            <motion.div key="rewards" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.card}>
+              {availableRewards.length ? (
                 availableRewards.map((reward, i) => (
                   <div key={`${reward.name}-${i}`} className={styles.rewardCard}>
                     <div className={styles.rewardIcon}>{reward.icon}</div>
                     <h3>{reward.name}</h3>
                     <p>{reward.description}</p>
-                    <button
-                      className={styles.claimButton}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => handleClaimReward(reward)}
+                      className={styles.claimButton}
                     >
-                      Claim +{reward.points} pts
-                    </button>
+                      Claim +{reward.points} points
+                    </motion.button>
                   </div>
                 ))
               ) : (
-                <div className={styles.noRewards}>No rewards available. Keep progressing!</div>
+                <div className={styles.noRewards}>No rewards available now. Keep engaging!</div>
               )}
-            </div>
+            </motion.div>
           )}
-        </section>
+        </AnimatePresence>
       </div>
     </div>
   );

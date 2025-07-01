@@ -124,6 +124,49 @@ export const fetchRewards = async () => {
     } catch (error) {}
 };
 
+export const updateUser = async (userData) => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/user/update`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth_token": localStorage.getItem("auth_token"),
+            },
+            body: JSON.stringify(userData),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to update user');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating user:", error);
+        throw error;
+    }
+};
+
+export const uploadProfilePhoto = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('profileImage', file);
+
+        const response = await fetch(`${API_ROOT}/api/user/upload-photo`, {
+            method: 'POST',
+            headers: {
+                "auth_token": localStorage.getItem("auth_token"),
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to upload profile photo');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error uploading profile photo:', error);
+        throw error;
+    }
+};
+
 export const fetchMatches = async () => {
     try {
         const response = await fetch(`${API_ROOT}/api/user/matches`, {
@@ -208,50 +251,147 @@ export const fetchChats = async (user) => {
     } catch (e) { console.log(e); }
 }
 
-export const getLeaderboard = () => {
-  return Promise.resolve({
-    success: true,
-    leaderboard: [
-      { rank: 1, username: 'Alice', points: 1250, level: 15, achievements: 8, experience: 1500 },
-      { rank: 2, username: 'Bob', points: 1100, level: 12, achievements: 6, experience: 1200 },
-      { rank: 3, username: 'Charlie', points: 950, level: 10, achievements: 5, experience: 1000 },
-    ],
-  });
+// Gamification API functions
+export const getLeaderboard = async () => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/gamification/leaderboard`, {
+            method: "GET",
+            headers: {
+                "auth_token": localStorage.getItem("auth_token")
+            },
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        throw error;
+    }
 };
 
-export const getUserGamification = () => {
-  return Promise.resolve({
-    success: true,
-    data: {
-      username: 'DemoUser',
-      points: 1250,
-      level: 15,
-      experience: 1450,
-      expForNextLevel: 50,
-      progressToNextLevel: 75,
-      achievements: [
-        { name: 'First Session', description: 'Complete your first session', icon: '🎯', points: 50 },
-        { name: 'Hour Master', description: 'Study for 1 hour', icon: '⏰', points: 75 },
-      ],
-    },
-  });
+export const getUserGamification = async () => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/gamification/user`, {
+            method: "GET",
+            headers: {
+                "auth_token": localStorage.getItem("auth_token")
+            },
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching user gamification:", error);
+        throw error;
+    }
 };
 
-//Eliminate rewards already claimed
-//Show points associated
-export const getAvailableRewards = () => {
-  return Promise.resolve({
-    success: true,
-    availableRewards: [
-      { name: 'Session Master', description: 'Complete 5 sessions', icon: '📚', points: 200, _id: '1' },
-    ],
-  });
+export const awardPoints = async (points, experience, reason) => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/gamification/award`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth_token": localStorage.getItem("auth_token")
+            },
+            body: JSON.stringify({
+                points,
+                experience,
+                reason
+            }),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error awarding points:", error);
+        throw error;
+    }
 };
 
-//Add reward to rewards already claimed
-//Add points
-//Rearrange leaderboard based on new points
-export const claimReward = ({ rewardId }) => {
-  console.log(`Claimed reward with ID: ${rewardId}`);
-  return Promise.resolve({ success: true });
+export const completeSession = async (duration, subjects, studentsHelped) => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/gamification/session/complete`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth_token": localStorage.getItem("auth_token")
+            },
+            body: JSON.stringify({
+                duration,
+                subjects,
+                studentsHelped
+            }),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error completing session:", error);
+        throw error;
+    }
+};
+
+export const claimReward = async (rewardId) => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/gamification/reward/claim`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth_token": localStorage.getItem("auth_token")
+            },
+            body: JSON.stringify({
+                rewardId
+            }),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error claiming reward:", error);
+        throw error;
+    }
+};
+
+export const getAvailableRewards = async () => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/gamification/rewards/available`, {
+            method: "GET",
+            headers: {
+                "auth_token": localStorage.getItem("auth_token")
+            },
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching available rewards:", error);
+        throw error;
+    }
+};
+
+export const trackChatActivity = async (messageCount = 1) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_ROOT}/gamification/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ messageCount })
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error tracking chat activity:', error);
+        throw error;
+    }
+};
+
+export const trackCallActivity = async (duration, callType = 'video') => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_ROOT}/gamification/call`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ duration, callType })
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error tracking call activity:', error);
+        throw error;
+    }
 };

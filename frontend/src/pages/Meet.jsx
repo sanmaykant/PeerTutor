@@ -5,10 +5,11 @@ import GridView from "../components/GridView";
 import UserTile from "../components/UserTile";
 import ChatView from "../components/ChatView";
 import ToggleButton from "../components/ToggleButton";
+import BackButton from "../components/BackButton";
 
 import { VideoCallController } from "../utils/webRtcController";
 import { AuthContext } from "../providers/AuthProvider";
-import { fetchChats } from "../utils/apiControllers";
+import { fetchChats, trackCallActivity } from "../utils/apiControllers";
 
 import {
     Mic,
@@ -68,6 +69,7 @@ function useVideoCall(refs, roomId) {
     const [tiles, setTiles] = useState([
         { key: "localUser", ref: refs.userTileRef, video: null }
     ]);
+    const [callStartTime, setCallStartTime] = useState(null);
 
     const updateTile = (key, data) => {
         setTiles(prev => prev.some(tile => tile.key === key)
@@ -81,6 +83,9 @@ function useVideoCall(refs, roomId) {
     };
 
     const startCall = async (controller) => {
+        // Track call start time
+        setCallStartTime(Date.now());
+
         controller.addOnConnectListener(() => {
             updateTile("remoteUser", { ref: refs.remoteUserRef, video: null });
         });
@@ -88,6 +93,14 @@ function useVideoCall(refs, roomId) {
         controller.addOnDisconnectListener(() => {
             removeTile("remoteUser");
             removeTile("remoteScreen");
+            
+            // Track call end and duration
+            if (callStartTime) {
+                const callDuration = Math.floor((Date.now() - callStartTime) / 1000 / 60); // Duration in minutes
+                trackCallActivity(callDuration, 'video').catch(error => {
+                    console.error('Error tracking call activity:', error);
+                });
+            }
         });
 
         controller.addRemoteScreenShareListener((event) => {
@@ -148,6 +161,15 @@ function useVideoCall(refs, roomId) {
         startCall(controller);
         return () => {
             console.log("closing call...", controller);
+            
+            // Track call end when component unmounts
+            if (callStartTime) {
+                const callDuration = Math.floor((Date.now() - callStartTime) / 1000 / 60); // Duration in minutes
+                trackCallActivity(callDuration, 'video').catch(error => {
+                    console.error('Error tracking call activity:', error);
+                });
+            }
+            
             controller.close();
         }
     }, []);
@@ -205,6 +227,7 @@ export default function Meet() {
 
     return (
         <div>
+            <BackButton />
             <div className={styles.main}>
                 <div className={styles.grid}>
                     <GridView ref={refs.gridRef} gap={10}>

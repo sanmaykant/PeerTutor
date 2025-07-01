@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { motion } from "framer-motion";
+import BackButton from '../components/BackButton';
 
 const API_ROOT = "http://localhost:5000";
 
@@ -42,6 +43,7 @@ function MentorProfile() {
       fontFamily: 'Poppins, Inter, sans-serif',
       padding: "2rem"
     }}>
+      <BackButton />
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}

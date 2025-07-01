@@ -1,62 +1,47 @@
 // Leaderboard.module.scss
 
-$primary: #663399;
-$secondary: #6F4685;
-$background: #f9fafb;
-$darkBackground: #1f2937;
-$text: #111827;
-$textLight: #ffffff;
-$accent: #fbbf24;
-
 .container {
-  max-width: 900px;
-  margin: 0 auto;
+  min-height: 100vh;
+  width: 100vw; // Make it full screen width
+  background: linear-gradient(to bottom right, #e0f2fe, #ffffff, #ede9fe);
   padding: 2rem;
-  transition: background-color 0.3s ease;
-  background-color: $background;
-  border-radius: 8px;
-}
-
-.darkMode {
-  background-color: $darkBackground;
-  color: $textLight;
-}
-
-.leaderboardPage {
-  padding: 1rem;
-  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
 }
 
 .header {
   text-align: center;
   margin-bottom: 2rem;
+}
 
-  .title {
-    font-size: 2rem;
-    font-weight: bold;
-  }
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000000; // Black text
+}
 
-  .subtitle {
-    font-size: 1rem;
-    color: gray;
-    margin-top: 0.25rem;
-  }
+.subtitle {
+  color: #000000; // Black text
+  opacity: 0.7;
 }
 
 .loaderContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;
+  min-height: 100vh;
+}
 
-  .loader {
-    width: 40px;
-    height: 40px;
-    border: 4px solid $secondary;
-    border-top: 4px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #93c5fd;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -66,246 +51,683 @@ $accent: #fbbf24;
 }
 
 .userCard {
-  background: $primary;
-  color: white;
+  background: #ffffff;
+  border-radius: 1rem;
   padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  transition: all 0.3s ease;
 }
 
 .userInfo {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
 
-  .avatar {
-    background: white;
-    color: $primary;
-    font-weight: bold;
-    font-size: 1.25rem;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
-  }
+.avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
 
-  .username {
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
+.username {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000; // Set to black
+}
 
-  .userStats {
-    font-size: 0.9rem;
-  }
+.userStats {
+  color: #000000; // Black text
+  opacity: 0.7;
 }
 
 .userPoints {
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: right;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-weight: 600;
+  color: #3b82f6;
 }
 
 .progressWrap {
-  .progressBarBg {
-    background: rgba(255, 255, 255, 0.2);
-    height: 8px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
+  margin-top: 1rem;
+}
 
-  .progressBarFill {
-    background: $accent;
-    height: 8px;
-    transition: width 0.5s ease;
-  }
+.progressBarBg {
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  height: 10px;
+  overflow: hidden;
+}
 
-  .xpInfo {
-    font-size: 0.75rem;
-    text-align: right;
-    margin-top: 0.3rem;
-  }
+.progressBarFill {
+  height: 10px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  border-radius: 9999px;
+}
+
+.xpInfo {
+  font-size: 0.75rem;
+  color: #000000; // Black text
+  opacity: 0.6;
+  margin-top: 0.25rem;
 }
 
 .tabButtons {
   display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   justify-content: center;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
+  width: 100%;
+}
 
-  .tabButton {
-    padding: 0.6rem 1rem;
-    border: none;
-    background: #e5e7eb;
-    color: #111;
-    border-radius: 20px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #000000; // Black text
 
-    &:hover {
-      background: $secondary;
-      color: white;
-    }
+  &:hover {
+    background-color: #f1f5f9;
   }
+}
 
-  .active {
-    background: $primary;
-    color: white;
-  }
+.active {
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .card {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-
-  .darkMode & {
-    background: #2d3748;
-  }
-}
-
-.leaderboardList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 800px;
+  transition: all 0.3s ease;
 }
 
 .leaderboardRow {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background: #f3f4f6;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  transition: background 0.3s;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
 
-  .darkMode & {
-    background: #374151;
+  &:last-child {
+    border-bottom: none;
   }
 
-  &.currentUser {
-    background: $accent;
-    color: $text;
+  h3 {
+    color: #000000; // Black text
     font-weight: 600;
+    margin: 0;
   }
 
-  .rank {
-    width: 30px;
-    font-weight: bold;
-    margin-right: 0px;
-  }
-
-  .player {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      background: $primary;
-      color: white;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-weight: bold;
-    }
-
-    .playerInfo {
-      .username {
-        font-weight: 600;
-      }
-
-      .level {
-        font-size: 0.75rem;
-
-        .progressBar {
-          width: 100px;
-          background: #d1d5db;
-          height: 6px;
-          border-radius: 10px;
-          overflow: hidden;
-
-          .progress {
-            background: $secondary;
-            height: 6px;
-            transition: width 0.3s ease;
-          }
-        }
-      }
-    }
-  }
-
-  .stats {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-
-    .stat {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.9rem;
-    }
+  p {
+    color: #000000; // Black text
+    opacity: 0.7;
+    margin: 0.25rem 0 0 0;
   }
 }
 
-.achievementGrid,
-.rewardGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+.highlight {
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+}
+
+.rank {
+  font-size: 1.25rem;
+  color: #9ca3af;
+  width: 40px;
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
   gap: 1rem;
+}
+
+.playerAvatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.playerPoints {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.purple {
+  color: #7c3aed;
+}
+
+.red {
+  color: #dc2626;
+}
+
+.orange {
+  color: #f97316;
+}
+
+.yellow {
+  color: #facc15;
+}
+
+.green {
+  color: #10b981;
 }
 
 .achievementCard,
 .rewardCard {
-  background: #f3f4f6;
-  border-radius: 8px;
+  background: #fefce8;
   padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #fde68a;
   text-align: center;
-
-  .darkMode & {
-    background: #4b5563;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
 
   h3 {
+    color: #000000; // Black text
+    font-weight: 600;
+    margin: 0.5rem 0;
+  }
+
+  p {
+    color: #000000; // Black text
+    opacity: 0.7;
     margin: 0.5rem 0;
   }
 
   span {
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: #000000; // Black text
+    font-weight: 600;
   }
 }
 
 .achievementIcon,
 .rewardIcon {
   font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .claimButton {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: $primary;
+  margin-top: 1rem;
+  background: linear-gradient(to right, #10b981, #3b82f6);
   color: white;
   border: none;
-  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: 0.3s;
 
-&:hover {
-  background: #3730a3; // hardcoded darker version of $primary
-}
+  &:hover {
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+  }
 }
 
 .noRewards {
   text-align: center;
-  font-size: 0.95rem;
-  padding: 1rem;
-  color: gray;
+  padding: 2rem;
+  color: #000000; // Black text
+  opacity: 0.6;
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: linear-gradient(to bottom right, #0f172a, #1e293b, #334155);
+  }
+
+  .title {
+    color: #ffffff; // White text in dark mode
+  }
+
+  .subtitle {
+    color: #e2e8f0; // Light gray text in dark mode
+  }
+
+  .userCard {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #334155;
+  }
+
+  .username {
+    color: #ffffff; // White text in dark mode
+  }
+
+  .userStats {
+    color: #cbd5e1; // Light gray text in dark mode
+  }
+
+  .xpInfo {
+    color: #94a3b8; // Medium gray text in dark mode
+  }
+
+  .tabButton {
+    background-color: #1e293b;
+    color: #e2e8f0; // Light gray text in dark mode
+    border: 1px solid #334155;
+
+    &:hover {
+      background-color: #334155;
+    }
+  }
+
+  .active {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .card {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #334155;
+  }
+
+  .leaderboardRow {
+    border-bottom: 1px solid #334155;
+
+    h3 {
+      color: #ffffff; // White text in dark mode
+    }
+
+    p {
+      color: #cbd5e1; // Light gray text in dark mode
+    }
+  }
+
+  .highlight {
+    background-color: #1e3a8a;
+    border-left: 4px solid #3b82f6;
+  }
+
+  .rank {
+    color: #64748b; // Medium gray text in dark mode
+  }
+
+  .progressBarBg {
+    background-color: #334155;
+  }
+
+  .achievementCard,
+  .rewardCard {
+    background: #451a03;
+    border: 1px solid #92400e;
+
+    h3 {
+      color: #ffffff; // White text in dark mode
+    }
+
+    p {
+      color: #fbbf24; // Yellow text in dark mode
+    }
+
+    span {
+      color: #fbbf24; // Yellow text in dark mode
+    }
+  }
+
+  .noRewards {
+    color: #94a3b8; // Medium gray text in dark mode
+  }
+}
+
+// Manual Dark Mode Class (for toggle functionality)
+.darkMode {
+  .container {
+    background: linear-gradient(to bottom right, #0f172a, #1e293b, #334155);
+  }
+
+  .title {
+    color: #ffffff;
+  }
+
+  .subtitle {
+    color: #e2e8f0;
+  }
+
+  .userCard {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #334155;
+  }
+
+  .username {
+    color: #ffffff;
+  }
+
+  .userStats {
+    color: #cbd5e1;
+  }
+
+  .xpInfo {
+    color: #94a3b8;
+  }
+
+  .tabButton {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+
+    &:hover {
+      background-color: #334155;
+    }
+  }
+
+  .active {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .card {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #334155;
+  }
+
+  .leaderboardRow {
+    border-bottom: 1px solid #334155;
+
+    h3 {
+      color: #ffffff;
+    }
+
+    p {
+      color: #cbd5e1;
+    }
+  }
+
+  .highlight {
+    background-color: #1e3a8a;
+    border-left: 4px solid #3b82f6;
+  }
+
+  .rank {
+    color: #64748b;
+  }
+
+  .progressBarBg {
+    background-color: #334155;
+  }
+
+  .achievementCard,
+  .rewardCard {
+    background: #451a03;
+    border: 1px solid #92400e;
+
+    h3 {
+      color: #ffffff;
+    }
+
+    p {
+      color: #fbbf24;
+    }
+
+    span {
+      color: #fbbf24;
+    }
+  }
+
+  .noRewards {
+    color: #94a3b8;
+  }
+}
+
+// Responsive design for mobile
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .userCard,
+  .card {
+    max-width: 100%;
+    margin: 0 1rem 2rem 1rem;
+  }
+  
+  .tabButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tabButton {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+.leaderboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.leaderboardCard {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.rankBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.userInfo {
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 0.875rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.leaderboardList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.leaderboardRow {
+  display: grid;
+  grid-template-columns: 50px 2fr 1fr;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  gap: 1.5rem;
+  color: #fff;
+
+  &:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &.gold {
+    border-left: 5px solid #FFD700;
+  }
+  &.silver {
+    border-left: 5px solid #C0C0C0;
+  }
+  &.bronze {
+    border-left: 5px solid #CD7F32;
+  }
+
+  &.currentUser {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.5);
+  }
+}
+
+.rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #a9a9a9;
+  text-align: center;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.playerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-grow: 1;
+  min-width: 0;
+
+  .username {
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .level {
+    font-size: 0.8rem;
+    color: #a9a9a9;
+  }
+}
+
+.progressBar {
+  width: 100%;
+  max-width: 200px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+
+  .progress {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+  }
+}
+
+.stats {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    
+    svg {
+      color: #a9a9a9;
+      flex-shrink: 0;
+    }
+  }
 }
