@@ -1,5 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 
+const UserEvents = new Schema({
+    end: {type: String, required: true},
+    start: {type: String, required: true},
+    title: {type: String, required: true}
+});
+
 const UserSchema = new Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -13,7 +19,9 @@ const UserSchema = new Schema({
     },
     age: { type: String, default: "" },
     gender: { type: String, default: "" },
-    university: { type: String, default: "" }
+    university: { type: String, default: "" },
+    events: {type: [UserEvents], default: []},
 });
+
 
 export default mongoose.model("User", UserSchema);

@@ -5,6 +5,7 @@ import {
     fetchMetrics,
     fetchMatches,
     fetchChats,
+    postEvents
 } from "../controllers/user/userController.js"
 
 const router = Router();
@@ -24,6 +25,9 @@ router.post("/update", (req, res, next) => {
 })
 router.get("/chats", (req, res, next) => {
     fetchChats(req, res).catch(next);
+})
+router.post("/events", (req, res, next) => {
+    postEvents(req, res).catch(next);
 })
 
 export default router;

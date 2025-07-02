@@ -39,6 +39,31 @@ export const updateMetrics = async (marks) => {
     }
 };
 
+export const postEvents = async (events) => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/user/events`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                auth_token: localStorage.getItem("auth_token"),
+                events: events,  // Send the marks directly
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add events.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error in updateMetrics API:", error);
+        throw error;  // Rethrow error for the calling code to handle
+    }
+};
+
+
 
 export const fetchMatches = async () => {
     try {

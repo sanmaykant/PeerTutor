@@ -221,3 +221,27 @@ export const fetchChats = async (req, res) => {
         messages: chatMessages,
     });
 };
+
+export const postEvents = async (req, res) => {
+    try {
+
+        const { events } = req.body;
+        const user = req.user; 
+
+        user.events=events;
+        user.save();
+
+        console.log("Event succesfully saved");
+        console.log(req.body);
+
+    return res.status(200).json({
+        success: true,
+        messages: events,
+    });
+
+
+    } catch (error) {
+        console.error("Error updating metrics:", error);
+        return res.status(500).json({ message: "Server error while updating metrics." });
+    }
+};
