@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useCallback, useMemo } from 'react'
+import React, { Fragment, useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import moment from 'moment'
 import {
   Calendar,
@@ -7,7 +7,8 @@ import {
 } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import {
-    postEvents
+    postEvents,
+    fetchEvents,
 } from "../utils/apiControllers.js";
 
 
@@ -15,6 +16,7 @@ const localizer = momentLocalizer(moment)
 
 export default function SelectableCalendar() {
   const [myEvents, setEvents] = useState([])
+  const isFirstRender = useRef(true);
 
   const handleSelectSlot = useCallback(
     ({ start, end }) => {
@@ -27,6 +29,11 @@ export default function SelectableCalendar() {
   )
 
   useEffect(() => {
+    if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+    }
+
     const eventsCopy=[];
     for (let i=0; i<myEvents.length; i++)
     {
@@ -37,8 +44,15 @@ export default function SelectableCalendar() {
       };
     }
     postEvents(eventsCopy);
-  }, [myEvents]
-)
+  }, [myEvents])
+
+    useEffect(() => {
+        (async () => {
+            const events = await fetchEvents();
+            console.log(events);
+            setEvents((prev) => [ ...prev, ...events ])
+        })();
+    }, []);
 
   const handleSelectEvent = useCallback(
     (event) => window.alert(event.title),

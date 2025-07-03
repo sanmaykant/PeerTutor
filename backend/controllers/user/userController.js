@@ -245,3 +245,18 @@ export const postEvents = async (req, res) => {
         return res.status(500).json({ message: "Server error while updating metrics." });
     }
 };
+
+export const fetchEvents = async (req, res) => {
+    try {
+        const user = req.user;
+
+        return res.status(200).json({
+            events: user.events,
+            success: true,
+        });
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        return res.status(500).json({
+            message: "Server error while fetching events.", success: false });
+    }
+}

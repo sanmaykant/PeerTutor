@@ -63,7 +63,26 @@ export const postEvents = async (events) => {
     }
 };
 
+export const fetchEvents = async () => {
+    try {
+        const response = await fetch(`${API_ROOT}/api/user/events`, {
+            method: "GET",
+            headers: {
+                "auth_token": localStorage.getItem("auth_token")
+            },
+        });
+        const data = await response.json();
 
+        if (!data.success) {
+            console.log(data)
+        }
+
+        const events = data.events.map(
+            ({ end, start, title }) => (
+                { end: new Date(end), start: new Date(start), title }))
+        return events;
+    } catch (error) {}
+} 
 
 export const fetchMatches = async () => {
     try {
