@@ -4,7 +4,7 @@ export default class AchievementManager {
         this.pendingAchievementClaims = []
         this.claimedAchievements = []
         this.registeredRewards = []
-        this.pendingRewards = []
+        this.pendingRewardClaims = []
         this.points = 0
 
         this.loadState();
@@ -71,8 +71,10 @@ export default class AchievementManager {
         let reward = this.registeredRewards.find(reward => reward.name === rewardName)
         if (!reward)
             throw new Error(`Reward "${rewardName} not registered`);
-        if (reward.resolver(...args))
-            this.pendingRewards.push(rewardName);
+        if (reward.resolver(...args)) {
+            this.pendingRewardClaims.push(rewardName);
+            this.points += reward.points;
+        }
         this.saveState();
         console.log(this);
     }
@@ -81,7 +83,7 @@ export default class AchievementManager {
         localStorage.setItem("state", JSON.stringify({
             claimedAchievements: this.claimedAchievements,
             pendingAchievementClaims: this.pendingAchievementClaims,
-            pendingRewards: this.pendingRewards,
+            pendingRewardClaims: this.pendingRewardClaims,
             points: this.points,
         }));
     }
@@ -90,13 +92,13 @@ export default class AchievementManager {
         let state = JSON.parse(localStorage.getItem("state") || `{
             "claimedAchievements": [],
             "pendingAchievementClaims": [],
-            "pendingRewards": [],
+            "pendingRewardClaims": [],
             "points": 0
         }`);
 
         this.claimedAchievements = state.claimedAchievements;
         this.pendingAchievementClaims = state.pendingAchievementClaims;
-        this.pendingRewards = state.pendingRewards;
+        this.pendingRewardClaims = state.pendingRewardClaims;
         this.points = state.points;
     }
 }
