@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import styles from "./styles/ListView.module.scss";
 import { ChevronRight, MessageSquare, Phone } from "lucide-react";
-import { checkConsistentConnector, checkFirstMeet, checkGold, checkNewMatchMaker } from "../utils/GamificationLogic";
 
 const ListView = ({ users, chatCallback=() => {} }) => {
   const navigate = useNavigate();
@@ -42,30 +41,30 @@ const ListView = ({ users, chatCallback=() => {} }) => {
                 style={{ marginRight: "1em" }}
                 onClick={(e) => {
                     e.stopPropagation();
-                    checkFirstMeet();
+                    // checkFirstMeet();
 
-                    let meetingMap = JSON.parse(localStorage.getItem("meetingMap") || "{}");
+                    // let meetingMap = JSON.parse(localStorage.getItem("meetingMap") || "{}");
 
-                    if (!meetingMap[user.username]) {
-                      checkNewMatchMaker();
-                      meetingMap[user.username] = 0;
-                    }
+                    // if (!meetingMap[user.username]) {
+                    //   checkNewMatchMaker();
+                    //   meetingMap[user.username] = 0;
+                    // }
 
-                      meetingMap[user.username]++;
+                    //   meetingMap[user.username]++;
 
-                      if (!(meetingMap[user.username]==1))
-                      {
-                        checkConsistentConnector();
-                      }
+                    //   if (!(meetingMap[user.username]==1))
+                    //   {
+                    //     checkConsistentConnector();
+                    //   }
 
-                      console.log(meetingMap);
+                    //   console.log(meetingMap);
 
-                      localStorage.setItem("meetingMap", JSON.stringify(meetingMap));
+                    //   localStorage.setItem("meetingMap", JSON.stringify(meetingMap));
 
-                    if (meetingMap[user.username]>=5)
-                    {
-                      checkGold();
-                    }
+                    // if (meetingMap[user.username]>=5)
+                    // {
+                    //   checkGold();
+                    // }
                       
                     navigate(`/meet/${user.username}`);
                 }}

@@ -1,4 +1,5 @@
-import  AuthProvider, { ProtectedRoute } from "./providers/AuthProvider";
+import AuthProvider, { ProtectedRoute } from "./providers/AuthProvider";
+import AchievementProvider from "./providers/AchievementProvider";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import Dashboard from "./pages/Dashboard"
@@ -58,7 +59,9 @@ const router = createBrowserRouter([
 
 function App() {
     return <AuthProvider>
-        <RouterProvider router={router} />
+        <AchievementProvider>
+            <RouterProvider router={router} />
+        </AchievementProvider>
         </AuthProvider>
 }
 

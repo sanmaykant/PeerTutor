@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect, useContext } from "react";
 import { useAuthformHook } from "../hooks/AuthformHook";
 import { AuthContext } from "../providers/AuthProvider";
+import { AchievementContext } from "../providers/AchievementProvider";
 import { errorStyle, hideStyle } from "../utils/styles";
 import { login } from "../utils/apiControllers";
 import styles from "./styles/Auth.module.scss";
@@ -9,6 +10,7 @@ import styles from "./styles/Auth.module.scss";
 export default function Login() {
     const navigate = useNavigate();
     const { setAuthStatus } = useContext(AuthContext);
+    const { achievementManager } = useContext(AchievementContext);
     const [errorMsg, setErrorMsg] = useState("");
     const [errorMsgStyle, setErrorMsgStyle] = useState(hideStyle);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -21,6 +23,7 @@ export default function Login() {
     useEffect(() => {
         setAuthStatus("logged_in");
         if (isSubmitted) {
+            achievementManager.resolveAchievement("Bronze");
             navigate("/dashboard");
         }
     }, [isSubmitted, navigate]);
