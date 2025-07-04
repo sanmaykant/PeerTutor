@@ -53,7 +53,13 @@ const ListView = ({ users, chatCallback=() => {} }) => {
                     console.log(meetHistory);
                     localStorage.setItem("meetHistory", JSON.stringify(meetHistory));
 
-                    achievementManager.resolveAchievement("First Meet", meetHistory);
+                    achievementManager.resolveAchievement(
+                        "First Meet", meetHistory);
+                    achievementManager.resolveReward(
+                        "Gold", meetHistory, user.username);
+                    achievementManager.resolveReward("Consistent Connector");
+                    achievementManager.resolveReward(
+                        "New Match Maker", meetHistory, user.username);
                       
                     navigate(`/meet/${user.username}`);
                 }}

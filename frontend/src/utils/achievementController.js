@@ -1,41 +1,10 @@
-let allRewards = [
-  {
-    reward: "Bronze",
-    points: 20,
-    description: "For taking the initiative to improve your grades"
-  },
-  {
-    reward: "Silver",
-    points: 50,
-    description: "Start first chat with match"
-  },
-  {
-    reward: "Gold",
-    points: 100,
-    description: "5 meetings with one match"
-  },
-  {
-    reward: "First Meet",
-    points: 60,
-    description: "Attend your first meeting"
-  },
-  {
-    reward: "Consistent Connector",
-    points: 10,
-    description: "Points per meeting"
-  },
-  {
-    reward: "New Match Maker",
-    points: 5,
-    description: "Meetings with new matches"
-  }
-];
-
 export default class AchievementManager {
     constructor() {
         this.registeredAchievements = []
         this.pendingAchievementClaims = []
         this.claimedAchievements = []
+        this.registeredRewards = []
+        this.pendingRewards = []
         this.points = 0
 
         this.loadState();
@@ -62,6 +31,24 @@ export default class AchievementManager {
         return this;
     }
 
+    registerReward(
+        rewardName,
+        rewardDescription,
+        rewardPoints,
+        rewardResolver,
+    ) {
+        if (this.registeredRewards.find(reward => reward.name === rewardName))
+            throw new Error("Rewards already registered");
+
+        this.registeredRewards.push({
+            name: rewardName,
+            description: rewardDescription,
+            points: rewardPoints,
+            resolver: rewardResolver,
+        });
+        return this;
+    }
+
     resolveAchievement(achievementName, ...args) {
         if (this.claimedAchievements.includes(achievementName) ||
             this.pendingAchievementClaims.includes(achievementName))
@@ -69,6 +56,9 @@ export default class AchievementManager {
 
         let achievement = this.registeredAchievements.find(
             achievement => achievement.name === achievementName);
+        if (!achievement)
+            throw new Error(`Achievement "${achievementName}" not registered`);
+
         if (achievement.resolver(...args)) {
             this.pendingAchievementClaims.push(achievement.name);
             this.points += achievement.points;
@@ -77,10 +67,21 @@ export default class AchievementManager {
         this.saveState();
     }
 
+    resolveReward(rewardName, ...args) {
+        let reward = this.registeredRewards.find(reward => reward.name === rewardName)
+        if (!reward)
+            throw new Error(`Reward "${rewardName} not registered`);
+        if (reward.resolver(...args))
+            this.pendingRewards.push(rewardName);
+        this.saveState();
+        console.log(this);
+    }
+
     saveState() {
         localStorage.setItem("state", JSON.stringify({
             claimedAchievements: this.claimedAchievements,
             pendingAchievementClaims: this.pendingAchievementClaims,
+            pendingRewards: this.pendingRewards,
             points: this.points,
         }));
     }
@@ -89,11 +90,13 @@ export default class AchievementManager {
         let state = JSON.parse(localStorage.getItem("state") || `{
             "claimedAchievements": [],
             "pendingAchievementClaims": [],
+            "pendingRewards": [],
             "points": 0
         }`);
 
         this.claimedAchievements = state.claimedAchievements;
         this.pendingAchievementClaims = state.pendingAchievementClaims;
+        this.pendingRewards = state.pendingRewards;
         this.points = state.points;
     }
 }
