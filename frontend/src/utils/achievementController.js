@@ -37,6 +37,9 @@ export default class AchievementManager {
         this.pendingAchievementClaims = []
         this.claimedAchievements = []
         this.points = 0
+
+        this.loadState();
+        console.log(this);
     }
 
     registerAchievement(
@@ -60,8 +63,9 @@ export default class AchievementManager {
     }
 
     resolveAchievement(achievementName, ...args) {
-        if (this.claimedAchievements.includes(achievementName))
-            return;
+        if (this.claimedAchievements.includes(achievementName) ||
+            this.pendingAchievementClaims.includes(achievementName))
+                return;
 
         let achievement = this.registeredAchievements.find(
             achievement => achievement.name === achievementName);
@@ -70,5 +74,26 @@ export default class AchievementManager {
             this.points += achievement.points;
         }
         console.log(this.points);
+        this.saveState();
+    }
+
+    saveState() {
+        localStorage.setItem("state", JSON.stringify({
+            claimedAchievements: this.claimedAchievements,
+            pendingAchievementClaims: this.pendingAchievementClaims,
+            points: this.points,
+        }));
+    }
+
+    loadState() {
+        let state = JSON.parse(localStorage.getItem("state") || `{
+            "claimedAchievements": [],
+            "pendingAchievementClaims": [],
+            "points": 0
+        }`);
+
+        this.claimedAchievements = state.claimedAchievements;
+        this.pendingAchievementClaims = state.pendingAchievementClaims;
+        this.points = state.points;
     }
 }
