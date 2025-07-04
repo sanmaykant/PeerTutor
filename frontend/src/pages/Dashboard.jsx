@@ -6,6 +6,7 @@ import {
     fetchMatches,
     fetchChats
 } from "../utils/apiControllers.js";
+import {checkSilver} from "../utils/GamificationLogic.js";
 
 import ListView from "../components/ListView";
 import ChatView from "../components/ChatView.jsx";
@@ -56,6 +57,7 @@ function Dashboard() {
 
     const handleChat = (username) => {
         (async () => {
+          checkSilver();
             if (!userChatHistoryMap[username]) {
                 const chats = await fetchChats(username);
                 setUserChatHistoryMap(

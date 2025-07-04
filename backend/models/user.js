@@ -21,6 +21,7 @@ const UserSchema = new Schema({
     gender: { type: String, default: "" },
     university: { type: String, default: "" },
     events: {type: [UserEvents], default: []},
+    rewards: {type: [String], default: []}
 });
 
 

@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import WhoWereFor from "./pages/WhoWereFor";
 import About from "./pages/About";
 import Calendar from "./pages/Calendar";
+import Leaderboard from "./pages/Leaderboard";
 
 
 const router = createBrowserRouter([
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
     {
         path: "/calendar",
         element: <Calendar />
+    },
+    {
+        path: "/leaderboard",
+        element: <Leaderboard />
     },
 ])
 

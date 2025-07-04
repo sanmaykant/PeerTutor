@@ -259,4 +259,48 @@ export const fetchEvents = async (req, res) => {
         return res.status(500).json({
             message: "Server error while fetching events.", success: false });
     }
-}
+};
+
+export const postRewards = async (req, res) => {
+    try{
+        const {user}=req.user;
+        const rewards=req.body;
+
+        user.rewards=rewards;
+        user.save();
+
+        console.log("Success posting rewards");
+
+        return res.status(200).json(
+            {
+                rewards: user.rewards,
+                success: true,
+            }
+        );
+    }
+    catch(error) 
+    {
+        console.error("Error posting rewards:",rewards)
+        return res.status(500).json({
+            message: "Server error while posting rewards", success: false
+        })
+    }
+};
+
+export const fetchRewards = (req, res) => {
+    try {
+        const user=req.user;
+        return res.status(200).json({
+            message: "Succesfully fetched rewards",
+            success: true
+        })
+    }
+    catch(error)
+    {
+        console.log("Error fetching rewards");
+        return res.status(500).json({
+            message: "Server error in fetching rewards",
+            success: false,
+        })
+    }
+};
