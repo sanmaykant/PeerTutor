@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../providers/AuthProvider.jsx";
+import { AchievementContext } from "../providers/AchievementProvider";
 
 import {
     updateMetrics,
@@ -24,6 +25,7 @@ const subjects = [
 
 function Dashboard() {
     const { metrics } = useContext(AuthContext);
+    const { achievementManager } = useContext(AchievementContext);
     const [matches, setMatches] = useState([]);
     const [showMatches, setShowMatches] = useState(false);
     const [userChatHistoryMap, setUserChatHistoryMap] = useState({});
@@ -56,7 +58,7 @@ function Dashboard() {
 
     const handleChat = (username) => {
         (async () => {
-          // checkSilver();
+            achievementManager.resolveAchievement("Silver");
             if (!userChatHistoryMap[username]) {
                 const chats = await fetchChats(username);
                 setUserChatHistoryMap(

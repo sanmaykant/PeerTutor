@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AchievementContext } from "../providers/AchievementProvider";
 import { useNavigate } from "react-router";
 import styles from "./styles/ListView.module.scss";
 import { ChevronRight, MessageSquare, Phone } from "lucide-react";
 
 const ListView = ({ users, chatCallback=() => {} }) => {
   const navigate = useNavigate();
+  const { achievementManager } = useContext(AchievementContext);
   const [expandedIndex, setExpandedIndex] = useState(null);
 
   const toggleExpand = (index) => {
@@ -41,30 +43,17 @@ const ListView = ({ users, chatCallback=() => {} }) => {
                 style={{ marginRight: "1em" }}
                 onClick={(e) => {
                     e.stopPropagation();
-                    // checkFirstMeet();
 
-                    // let meetingMap = JSON.parse(localStorage.getItem("meetingMap") || "{}");
+                    let meetHistory = JSON.parse(localStorage.getItem("meetHistory") || "{}");
+                    if (!meetHistory[user.username]) {
+                      meetHistory[user.username] = 0;
+                    }
 
-                    // if (!meetingMap[user.username]) {
-                    //   checkNewMatchMaker();
-                    //   meetingMap[user.username] = 0;
-                    // }
+                    meetHistory[user.username]++;
+                    console.log(meetHistory);
+                    localStorage.setItem("meetHistory", JSON.stringify(meetHistory));
 
-                    //   meetingMap[user.username]++;
-
-                    //   if (!(meetingMap[user.username]==1))
-                    //   {
-                    //     checkConsistentConnector();
-                    //   }
-
-                    //   console.log(meetingMap);
-
-                    //   localStorage.setItem("meetingMap", JSON.stringify(meetingMap));
-
-                    // if (meetingMap[user.username]>=5)
-                    // {
-                    //   checkGold();
-                    // }
+                    achievementManager.resolveAchievement("First Meet", meetHistory);
                       
                     navigate(`/meet/${user.username}`);
                 }}
