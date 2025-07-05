@@ -1,14 +1,15 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import { Server } from "socket.io"
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js"
 import routes from "./routes/index.js";
 import ChatMessage from "./models/chat.js"
 import User from "./models/user.js"
 
-dotenv.config();
 connectDB();
 
 const app = express();
