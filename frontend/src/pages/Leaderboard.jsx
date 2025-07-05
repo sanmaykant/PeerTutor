@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../providers/AuthProvider';
+import { AchievementContext } from "../providers/AchievementProvider";
 import {
   getLeaderboard,
   getUserGamification,
@@ -13,9 +14,11 @@ import BackButton from '../components/BackButton';
 
 const Leaderboard = () => {
   const { user } = useAuth();
+  const { achievementManager } = useContext(AchievementContext);
   const [leaderboard, setLeaderboard] = useState([]);
   const [userData, setUserData] = useState(null);
   const [availableRewards, setAvailableRewards] = useState([]);
+  const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('leaderboard');
   const [darkMode, setDarkMode] = useState(false);
@@ -33,58 +36,20 @@ const Leaderboard = () => {
   }, []);
 
   const fetchData = async () => {
-    try {
       setLoading(true);
-      const [leaderboardRes, userRes, rewardsRes] = await Promise.all([
-        getLeaderboard(),
-        getUserGamification(),
-        getAvailableRewards(),
-      ]);
-
-      if (leaderboardRes.success) setLeaderboard(leaderboardRes.leaderboard);
-      if (userRes.success) setUserData(userRes.data);
-      if (rewardsRes.success) setAvailableRewards(rewardsRes.availableRewards);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLeaderboard([
-        { rank: 1, username: 'Alice', points: 1250, level: 15, achievements: 8 },
-        { rank: 2, username: 'Bob', points: 1100, level: 12, achievements: 6 },
-        { rank: 3, username: 'Charlie', points: 950, level: 10, achievements: 5 },
-      ]);
+      setAvailableRewards(achievementManager.getPendingRewardClaims());
+      setAchievements(achievementManager.getAchievements());
       setUserData({
         username: user?.username || 'User',
-        points: 1250,
-        level: 15,
-        experience: 1450,
-        expForNextLevel: 50,
-        progressToNextLevel: 75,
-        achievements: [
-          { name: 'First Session', description: 'Complete your first session', icon: '🎯', points: 50 },
-          { name: 'Hour Master', description: 'Study for 1 hour', icon: '⏰', points: 75 },
-        ],
+        points: achievementManager.points,
       });
-      setAvailableRewards([
-        { name: 'Session Master', description: 'Complete 5 sessions', icon: '📚', points: 200 },
-      ]);
-    } finally {
       setLoading(false);
-    }
   };
 
   const handleClaimReward = async (reward) => {
-    try {
-      const res = await claimReward({ rewardId: reward._id });
-      if (res.success) {
-        const userRes = await getUserGamification();
-        if (userRes.success) setUserData(userRes.data);
-        alert(`Claimed ${reward.name} for ${reward.points} points!`);
-        setAvailableRewards((prev) => prev.filter((r) => r.name !== reward.name));
-      }
-    } catch (error) {
-      console.error('Error claiming reward:', error);
-      alert(`Claimed ${reward.name} for ${reward.points} points!`);
-      setAvailableRewards((prev) => prev.filter((r) => r.name !== reward.name));
-    }
+    achievementManager.claimReward(reward.name);
+    setAvailableRewards(achievementManager.getPendingRewardClaims());
+    setUserData(prev => ({ ...prev, points: achievementManager.points }));
   };
 
   const getRankIcon = (rank) => {
@@ -221,12 +186,10 @@ const Leaderboard = () => {
 
           {activeTab === 'achievements' && (
             <motion.div key="achievements" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.card}>
-              {userData.achievements.map((ach, i) => (
+              {achievements.map((ach, i) => (
                 <div key={`${ach.name}-${i}`} className={styles.achievementCard}>
-                  <div className={styles.achievementIcon}>{ach.icon}</div>
                   <h3>{ach.name}</h3>
                   <p>{ach.description}</p>
-                  <span>+{ach.points} points</span>
                 </div>
               ))}
             </motion.div>
@@ -237,7 +200,6 @@ const Leaderboard = () => {
               {availableRewards.length ? (
                 availableRewards.map((reward, i) => (
                   <div key={`${reward.name}-${i}`} className={styles.rewardCard}>
-                    <div className={styles.rewardIcon}>{reward.icon}</div>
                     <h3>{reward.name}</h3>
                     <p>{reward.description}</p>
                     <motion.button
