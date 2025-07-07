@@ -61,10 +61,8 @@ export default function AuthProvider({ children }) {
             }
         };
 
-        if (authStatus === "loading") {
-            authenticate();
-        }
-    }, []);
+        authenticate();
+    }, [authStatus]);
 
     return (
         <AuthContext.Provider value={{ authStatus, setAuthStatus, user, metrics }}>

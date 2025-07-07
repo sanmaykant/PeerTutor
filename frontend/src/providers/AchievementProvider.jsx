@@ -24,7 +24,12 @@ export default function AchievementProvider({ children }) {
             return false;
         }
     ).registerReward(
-        "Consistent Connector", "Points per meeting", 10, () => true
+        "Consistent Connector", "Points per meeting", 10, (meetHistory, username) => {
+            if (meetHistory[username] > 1) {
+                return true;
+            }
+            return false;
+        }
     ).registerReward(
         "New Match Maker", "Meetings with new matches", 5,
         (meetHistory, username) => {

@@ -36,7 +36,7 @@ const ListView = memo(({ users, chatCallback = () => {} }) => {
         "First Meet", meetHistory);
     achievementManager.resolveReward(
         "Gold", meetHistory, username);
-    achievementManager.resolveReward("Consistent Connector");
+    achievementManager.resolveReward("Consistent Connector", meetHistory, username);
     achievementManager.resolveReward(
         "New Match Maker", meetHistory, username);
 
