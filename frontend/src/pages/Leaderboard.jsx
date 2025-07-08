@@ -20,7 +20,7 @@ const Leaderboard = () => {
   const [availableRewards, setAvailableRewards] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('leaderboard');
+  const [activeTab, setActiveTab] = useState('achievements');
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -98,21 +98,15 @@ const Leaderboard = () => {
               <div className={styles.avatar}>{userData?.username?.charAt(0).toUpperCase()}</div>
               <div>
                 <h3 className={styles.username}>{userData.username}</h3>
-                <p className={styles.userStats}>Level {userData.level} • {userData.points} points</p>
+                <p className={styles.userStats}>Level {Math.ceil(Math.sqrt(achievementManager.points) / 5)} • {userData.points} points</p>
               </div>
             </div>
             <div className={styles.userPoints}>{userData.points} pts</div>
-            <div className={styles.progressWrap}>
-              <div className={styles.progressBarBg}>
-                <motion.div className={styles.progressBarFill} animate={{ width: `${userData?.progressToNextLevel || 0}%` }} />
-              </div>
-              <p className={styles.xpInfo}>{userData.expForNextLevel} XP to next level</p>
-            </div>
           </motion.div>
         )}
 
         <div className={styles.tabButtons}>
-          {['leaderboard', 'achievements', 'rewards'].map((tab) => (
+          {[ 'achievements', 'rewards'].map((tab) => (
             <motion.button
               key={tab}
               whileHover={{ scale: 1.05 }}
@@ -120,7 +114,7 @@ const Leaderboard = () => {
               onClick={() => setActiveTab(tab)}
               className={`${styles.tabButton} ${activeTab === tab ? styles.active : ''}`}
             >
-              {tab === 'leaderboard' ? '🏆 Leaderboard' : tab === 'achievements' ? '🎖️ Achievements' : '🎁 Rewards'}
+              { tab === 'achievements' ? '🎖️ Achievements' : '🎁 Rewards'}
             </motion.button>
           ))}
         </div>
@@ -157,14 +151,6 @@ const Leaderboard = () => {
                         <span className={styles.username}>{user.username}</span>
                         <div className={styles.level}>
                           <span>Level {user.level}</span>
-                          <div className={styles.progressBar}>
-                            <motion.div 
-                              className={styles.progress} 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(user.experience / (user.level * 100 || 1)) * 100}%` }}
-                              transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
-                            />
-                          </div>
                         </div>
                       </div>
                     </div>
