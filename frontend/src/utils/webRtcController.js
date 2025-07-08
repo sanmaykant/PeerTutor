@@ -5,7 +5,7 @@ export class PeerConnection {
         this.roomId = roomId;
         this.streams = [];
         this._purpose = purpose;
-        this.socket = io("http://localhost:5001");
+        this.socket = io("https://peertutor-2lce.onrender.com/");
         this.pc = this._createPeerConnection();
         this._connected = false;
         this._connect();

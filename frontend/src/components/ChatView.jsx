@@ -4,7 +4,7 @@ import styles from "./styles/ChatView.module.scss";
 import { AuthContext } from "../providers/AuthProvider.jsx"
 import { trackChatActivity } from "../utils/apiControllers.js";
 
-const socket = io("http://localhost:5001");
+const socket = io("https://peertutor-2lce.onrender.com/");
 
 const ChatView = ({ peer, chatHistory=[], onMessage=()=>{} }) => {
     const { user } = useContext(AuthContext);

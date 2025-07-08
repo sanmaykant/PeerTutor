@@ -35,7 +35,7 @@ export default function AuthProvider({ children }) {
                 return;
             }
 
-            const response = await fetch("http://localhost:5000/api/auth/authenticate", {
+            const response = await fetch("https://peertutor-2lce.onrender.com/api/auth/authenticate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

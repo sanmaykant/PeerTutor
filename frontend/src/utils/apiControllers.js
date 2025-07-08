@@ -1,4 +1,4 @@
-const API_ROOT = "http://localhost:5000";
+const API_ROOT = "https://peertutor-2lce.onrender.com/";
 
 export const fetchMetrics = async () => {
     try {
@@ -236,7 +236,7 @@ export const signup = async (username, email, password) => {
 
 export const fetchChats = async (user) => {
     try {
-        const response = await fetch("http://localhost:5000/api/user/chats", {
+        const response = await fetch("https://peertutor-2lce.onrender.com/api/user/chats", {
             method: "GET",
             headers: {
                 "auth_token": localStorage.getItem("auth_token"),
