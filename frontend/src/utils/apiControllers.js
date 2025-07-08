@@ -1,4 +1,4 @@
-const API_ROOT = "https://peertutor-2lce.onrender.com/";
+const API_ROOT = "https://peertutor-2lce.onrender.com";
 
 export const fetchMetrics = async () => {
     try {
