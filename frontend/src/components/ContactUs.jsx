@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,47 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
+const contactUs = async (name, email, message) => {
+    try {
+        const response = await fetch("http://localhost:5000/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, message }),
+        });
+
+        const json = await response.json();
+        if (json.success) {
+            return true;
+        }
+        else return false;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+const hide = {
+    display: "none",
+};
+const show = {
+    display: "block",
+    color: "#44be88",
+    textAlign: "center",
+};
+
 function ContactUs() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [message, setMessage] = useState("");
+    const [successStyle, setSuccessStyle] = useState(hide);
+
+    const handleSubmit = () => {
+        console.log(name, email, message);
+        if (contactUs(name, email, message)) {
+            setSuccessStyle(show);
+        }
+    }
+
     return (
         <>
         <Dialog>
@@ -22,13 +63,14 @@ function ContactUs() {
                 </DialogHeader>
                 <div className="grid gap-4 px-[40px]">
                     <div className="grid gap-[22px]">
-                        <input className="border border-black rounded-[5px] pl-[33px] py-[24px] font-hanken-grotesque font-medium text-[18px] mt-[25px]" id="name-1" name="name" placeholder='Name'/>
-                        <input className="border border-black rounded-[5px] pl-[33px] py-[24px] font-hanken-grotesque font-medium text-[18px]" id="name-1" name="name" placeholder='Email id'/>
-                        <textarea className="border border-black rounded-[5px] pl-[33px] py-[24px] font-hanken-grotesque font-medium text-[18px]" id="name-1" name="name" placeholder='Message'/>
+                        <input onChange={e => setName(e.target.value)} className="border border-black rounded-[5px] pl-[33px] py-[24px] font-hanken-grotesque font-medium text-[18px] mt-[25px]" id="name-1" name="name" placeholder='Name'/>
+                        <input onChange={e => setEmail(e.target.value)} type="email" className="border border-black rounded-[5px] pl-[33px] py-[24px] font-hanken-grotesque font-medium text-[18px]" id="name-1" name="name" placeholder='Email id'/>
+                        <textarea onChange={e => setMessage(e.target.value)} className="border border-black rounded-[5px] pl-[33px] py-[24px] font-hanken-grotesque font-medium text-[18px]" id="name-1" name="name" placeholder='Message'/>
                     </div>
                 </div>
+            <p style={successStyle}>Message sent successfully!</p>
             <DialogFooter>
-            <Button variant="navPrimary" size="contact" className="mx-auto my-[23px] font-medium" type="submit">Submit</Button>
+            <Button variant="navPrimary" size="contact" className="mx-auto my-[23px] font-medium" type="submit" onClick={handleSubmit}>Submit</Button>
             </DialogFooter>
             </DialogContent>
         </Dialog>
