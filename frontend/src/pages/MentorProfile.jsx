@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { motion } from "framer-motion";
 import BackButton from '../components/BackButton';
 
-const API_ROOT = "http://localhost:5000";
+const API_ROOT = "https://peertutor-2lce.onrender.com/";
 
 const chipColors = [
   "#6366f1", "#f59e42", "#10b981", "#f472b6", "#60a5fa", "#fbbf24", "#34d399", "#818cf8"
