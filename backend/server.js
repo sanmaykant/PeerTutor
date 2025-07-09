@@ -13,11 +13,6 @@ import User from "./models/user.js"
 connectDB();
 
 const app = express();
-const io = new Server({
-  cors: {
-    origin: "http://localhost:5173"
-  }
-});
 const HTTP_PORT = process.env.HTTP_PORT || 5000;
 const SOCKET_PORT = Number(process.env.SOCKET_PORT) || 5002;
 
@@ -93,8 +88,18 @@ io.on("connection", (socket) => {
 });
 
 
-app.listen(HTTP_PORT, () => {
-  console.log(`Server is running at http://localhost:${HTTP_PORT}`);
+import http from "http";
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:5173", "https://your-vercel-frontend.vercel.app"], // Add your frontend domains here
+    methods: ["GET", "POST"]
+  }
 });
 
-io.listen(SOCKET_PORT);
+server.listen(HTTP_PORT, () => {
+  console.log(`Server + Socket.io listening at http://localhost:${HTTP_PORT}`);
+});
+
