@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import { createServer } from "http";
 import { Server } from "socket.io"
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -13,15 +14,14 @@ import User from "./models/user.js"
 connectDB();
 
 const app = express();
-const io = new Server({
-  cors: {
-    origin: "http://localhost:5173"
-  }
-});
-const HTTP_PORT = process.env.HTTP_PORT || 5000;
-const SOCKET_PORT = Number(process.env.SOCKET_PORT) || 5002;
+const HTTP_PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -30,6 +30,11 @@ app.use("/api", routes);
 
 app.get("/", (req, res) => {
   res.send("Express & TypeScript Backend is running!");
+});
+
+const server = createServer(app);
+const io = new Server(server, {
+  cors: corsOptions,
 });
 
 io.on("connection", (socket) => {
@@ -93,8 +98,6 @@ io.on("connection", (socket) => {
 });
 
 
-app.listen(HTTP_PORT, () => {
+server.listen(HTTP_PORT, () => {
   console.log(`Server is running at http://localhost:${HTTP_PORT}`);
 });
-
-io.listen(SOCKET_PORT);
